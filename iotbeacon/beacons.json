@@ -1,0 +1,113 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+    {
+                 "type": "Feature",
+                 "properties": {
+                    "relations": [
+                               {
+                                  "role": null,
+                                  "id": null,
+                                  "reltags": {
+                                    "name": null,
+                                    "type": "zone",
+                                    "value": 32
+                                  }
+                               },
+                               {
+                                  "role": null,
+                                  "id": null,
+                                  "reltags": {
+                                    "name": null,
+                                    "type": "level",
+                                    "value": 2
+                                  }
+                               }
+                    ],
+                    "tags": {
+                        "id": 320,
+                        "PUUID": "a07c5ca8-59eb-4ea8-9956-30b776e0fedc",
+                        "major": 2,
+                        "minor": 1,
+                        "height": 2.5,
+                        "type": "node",
+                        "name": "node0"
+                    },
+                    "type": "node"
+                 },
+                 "id": 320
+        },
+                 {
+                 "type": "Feature",
+                 "properties": {
+                 "relations": [
+                               {
+                               "role": null,
+                               "id": null,
+                               "reltags": {
+                               "name": null,
+                               "type": "zone",
+                               "value": 33
+                               }
+                               },
+                               {
+                               "role": null,
+                               "id": null,
+                               "reltags": {
+                               "name": null,
+                               "type": "level",
+                               "value": 3
+                               }
+                               }
+                               ],
+                 "tags": {
+                 "id": 330,
+                 "PUUID": "a07c5ca8-59eb-4ea8-9956-30b776e0fedc",
+                 "major": 3,
+                 "minor": 1,
+                 "height": 2.5,
+                 "type": "node",
+                 "name": "node0"
+                 },
+                 "type": "node"
+                 },
+                 "id": 330
+                 },
+        {
+                 "type": "Feature",
+                 "properties": {
+                 "relations": [
+                               {
+                               "role": null,
+                               "id": null,
+                               "reltags": {
+                               "name": null,
+                               "type": "zone",
+                               "value": 31
+                               }
+                               },
+                               {
+                               "role": null,
+                               "id": null,
+                               "reltags": {
+                               "name": null,
+                               "type": "level",
+                               "value": 1
+                               }
+                               }
+                               ],
+                 "tags": {
+                 "id": 310,
+                 "PUUID": "a07c5ca8-59eb-4ea8-9956-30b776e0fedc",
+                 "major": 1,
+                 "minor": 1,
+                 "height": 2.5,
+                 "type": "node",
+                 "name": "node0"
+                 },
+                 "type": "node"
+                 },
+                 "id": 310
+                 }
+    ]
+}

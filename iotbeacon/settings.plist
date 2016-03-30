@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>leaving_message</key>
+		<string>Завтра для вас персональная скидка 5% на весь заказ!</string>
+		<key>icon</key>
+		<string>sovok.jpg</string>
+		<key>leaving_url</key>
+		<string>http://bingopizza.ru/bonus-programma/</string>
+		<key>message</key>
+		<string>Добро пожаловать в наше Содружество лапши!</string>
+		<key>udid</key>
+		<string>a07c5ca8-59eb-4ea8-9956-30b776e0fedc</string>
+		<key>major</key>
+		<integer>3</integer>
+		<key>minor</key>
+		<integer>1</integer>
+		<key>url</key>
+		<string>http://bingopizza.ru/</string>
+	</dict>
+	<dict>
+		<key>icon</key>
+		<string></string>
+		<key>leaving_url</key>
+		<string></string>
+		<key>leaving_message</key>
+		<string></string>
+		<key>message</key>
+		<string></string>
+		<key>udid</key>
+		<string>a07c5ca8-59eb-4ea8-9956-30b776e0fedc</string>
+		<key>major</key>
+		<integer>2</integer>
+		<key>minor</key>
+		<integer>1</integer>
+		<key>url</key>
+		<string>http://nnbis.ru/?p=9908</string>
+	</dict>
+	<dict>
+		<key>icon</key>
+		<string></string>
+		<key>leaving_url</key>
+		<string></string>
+		<key>leaving_message</key>
+		<string></string>
+		<key>message</key>
+		<string></string>
+		<key>udid</key>
+		<string>a07c5ca8-59eb-4ea8-9956-30b776e0fedc</string>
+		<key>major</key>
+		<integer>1</integer>
+		<key>minor</key>
+		<integer>1</integer>
+		<key>url</key>
+		<string>http://192.168.0.34</string>
+	</dict>
+</array>
+</plist>
