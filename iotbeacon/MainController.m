@@ -48,6 +48,9 @@
                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
                       NSLog(@"response: %@", responseObject);
                       NSInteger version = [[responseObject valueForKey:@"version"] integerValue];
+                      // TODO remove this line
+                      //version = 2;
+                      
                       NSString *pathToVersion = [responseObject valueForKey:@"data_file"];
                       
                       NSNumber *storedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"data_version"];
@@ -81,9 +84,20 @@
                       NSArray *responseData = (NSArray*)responseObject;
                       for (NSDictionary *dict in responseData) {
                           NSMutableDictionary *beacon = [NSMutableDictionary dictionary];
-                          //[beacon setValue:[dict valueForKey:@"udid"] forKey:@"udid"];
+                          /* TODO remove this code */
+                          /*
                           [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
+                          [beacon setValue:[NSNumber numberWithInteger:5] forKey:@"major"];
+                          [beacon setValue:[NSNumber numberWithInteger:5] forKey:@"minor"];
+                          [beacon setValue:@"http://yandex.ru" forKey:@"url"];
+                          [beacon setValue:@"Привет. Заходи к нам на сайт." forKey:@"message"];
+                          [beacon setValue:@"http://google.com" forKey:@"leaving_url"];
+                          [beacon setValue:@"Жаль, что уходишь." forKey:@"leaving_message"];
+                          [beacon setValue:[NSNumber numberWithInteger:5] forKey:@"id"];
+                          */
+                          /* TODO */
                           
+                          [beacon setValue:[dict valueForKey:@"udid"] forKey:@"udid"];
                           [beacon setValue:[dict valueForKey:@"major"] forKey:@"major"];
                           [beacon setValue:[dict valueForKey:@"minor"] forKey:@"minor"];
                           [beacon setValue:[dict valueForKey:@"enter_url"] forKey:@"url"];
@@ -91,6 +105,7 @@
                           [beacon setValue:[dict valueForKey:@"leaving_url"] forKey:@"leaving_url"];
                           [beacon setValue:[dict valueForKey:@"leaving_message"] forKey:@"leaving_message"];
                           [beacon setValue:[dict valueForKey:@"id"] forKey:@"id"];
+                          
                           [newBeaconsArray addObject:beacon];
                       }
                       [self storeData:newBeaconsArray forVersion:version];

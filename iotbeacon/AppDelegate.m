@@ -22,6 +22,7 @@
 @property (strong, nonatomic)CBCentralManager *bluetoothManager;
 @property (strong, nonatomic) CLLocationManager *manager;
 @property (strong, nonatomic) NSMutableArray *currentRegions;
+@property (strong, nonatomic) UserData *user;
 @end
 
 @implementation AppDelegate
@@ -29,12 +30,13 @@
 @synthesize manager;
 @synthesize currentRegions;
 @synthesize bluetoothManager;
+@synthesize user;
 
 BOOL isApplicationActive = NO;
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
+#define GET_BEACON_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/ibeacon.php"
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
     localNotification.applicationIconBadgeNumber = 0;
     
@@ -46,9 +48,9 @@ BOOL isApplicationActive = NO;
     RegistryController* registryController = (RegistryController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"RegistryController"];
     
     
-    UserData *user = nil;
+    self.user = nil;
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"last_name"] != nil) {
-        user = [[UserData alloc] init];
+        self.user = [[UserData alloc] init];
         user.lastName = [[NSUserDefaults standardUserDefaults] objectForKey:@"last_name"];
         user.firstName = [[NSUserDefaults standardUserDefaults] objectForKey:@"first_name"];
         user.middleName = [[NSUserDefaults standardUserDefaults] objectForKey:@"middle_name"];
@@ -98,17 +100,11 @@ BOOL isApplicationActive = NO;
         arrayPath = [[NSBundle mainBundle] pathForResource:@"settings" ofType:@"plist"];
         self.beacons = [NSMutableArray arrayWithArray:[NSArray arrayWithContentsOfFile:arrayPath]];
     }
-    int index = 0;
-    for (NSDictionary *dict in beacons) {
-        NSString *identifier = [NSString stringWithFormat:@"%d#%@", index, [dict valueForKey:@"url"]];
-        
-        //NSUUID *udid = [[NSUUID alloc] initWithUUIDString:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc"];
-        NSUUID *udid = [[NSUUID alloc] initWithUUIDString:[dict valueForKey:@"udid"]];
-        
-        CLRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:udid major:[[dict valueForKey:@"major"] integerValue] minor:[[dict valueForKey:@"minor"] integerValue] identifier:identifier];
-        [manager startMonitoringForRegion:region];
-        [manager requestStateForRegion:region];
-        index++;
+    
+    if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways) {
+        [manager requestAlwaysAuthorization];
+    } else {
+        [self reinitBeaconApi];
     }
     
     return YES;
@@ -123,15 +119,21 @@ BOOL isApplicationActive = NO;
     for (NSDictionary *dict in beacons) {
         NSString *identifier = [NSString stringWithFormat:@"%d#%@", index, [dict valueForKey:@"url"]];
         CLRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:[dict valueForKey:@"udid"]] major:[[dict valueForKey:@"major"] integerValue] minor:[[dict valueForKey:@"minor"] integerValue] identifier:identifier];
-        [manager startMonitoringForRegion:region];
-        [manager requestStateForRegion:region];
+        if (region != nil) {
+            [manager startMonitoringForRegion:region];
+            [manager requestStateForRegion:region];
+        }
         index++;
     }
 }
 
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    NSLog(@"didChangeAuthorizationStatus: %d", status);
+    [self reinitBeaconApi];
+}
 
 - (void)locationManager:(CLLocationManager *)manager
-        didRangeBeacons:(NSArray<CLBeacon *> *)bcns inRegion:(CLBeaconRegion *)region {    
+        didRangeBeacons:(NSArray<CLBeacon *> *)bcns inRegion:(CLBeaconRegion *)region {
     NSLog(@"didRangeBeacons: %@", bcns);
 }
 
@@ -251,50 +253,50 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
 }
 
 /*
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    
-    if (application.applicationState == UIApplicationStateInactive ) {
-        //The application received the notification from an inactive state, i.e. the user tapped the "View" button for the alert.
-        //If the visible view controller in your view controller stack isn't the one you need then show the right one.
-        NSLog(@"### Notificztion clicked");
-    }
-    
-    if(application.applicationState == UIApplicationStateActive ) {
-        //The application received a notification in the active state, so you can display an alert view or do something appropriate.
-        NSLog(@"### Just entered");
-    }
-    
-    NSLog(@"### didReceiveLocalNotification: %@", notification);
-    
-    NSLog(@"### url: %@", [[notification userInfo] objectForKey:@"url"]);
-    
-    NSString *url = [[notification userInfo] objectForKey:@"url"];
-    
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    
-    if (isApplicationActive) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Внимание" message:@"Вы в зоне действия маяка. Хотите открыть страницу?" delegate:self cancelButtonTitle:@"Нет" otherButtonTitles:@"да", nil];
-        objc_setAssociatedObject(alert, @"url", url, OBJC_ASSOCIATION_COPY);
-        [alert show];
-        return;
-    }
-    
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    
-    if (url != nil) {
-        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-        UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
-        WebViewController* webController = (WebViewController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"WebViewController"];
-        webController.url = url;
-        [mainController popToViewController:[[mainController viewControllers] objectAtIndex:1] animated:NO];
-        [mainController pushViewController:webController animated:NO];
-    }
-}
-*/
+ - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+ 
+ if (application.applicationState == UIApplicationStateInactive ) {
+ //The application received the notification from an inactive state, i.e. the user tapped the "View" button for the alert.
+ //If the visible view controller in your view controller stack isn't the one you need then show the right one.
+ NSLog(@"### Notificztion clicked");
+ }
+ 
+ if(application.applicationState == UIApplicationStateActive ) {
+ //The application received a notification in the active state, so you can display an alert view or do something appropriate.
+ NSLog(@"### Just entered");
+ }
+ 
+ NSLog(@"### didReceiveLocalNotification: %@", notification);
+ 
+ NSLog(@"### url: %@", [[notification userInfo] objectForKey:@"url"]);
+ 
+ NSString *url = [[notification userInfo] objectForKey:@"url"];
+ 
+ [[UIApplication sharedApplication] cancelAllLocalNotifications];
+ 
+ if (isApplicationActive) {
+ UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Внимание" message:@"Вы в зоне действия маяка. Хотите открыть страницу?" delegate:self cancelButtonTitle:@"Нет" otherButtonTitles:@"да", nil];
+ objc_setAssociatedObject(alert, @"url", url, OBJC_ASSOCIATION_COPY);
+ [alert show];
+ return;
+ }
+ 
+ [[UIApplication sharedApplication] cancelAllLocalNotifications];
+ 
+ if (url != nil) {
+ UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+ UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+ WebViewController* webController = (WebViewController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"WebViewController"];
+ webController.url = url;
+ [mainController popToViewController:[[mainController viewControllers] objectAtIndex:1] animated:NO];
+ [mainController pushViewController:webController animated:NO];
+ }
+ }
+ */
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void(^)())completionHandler {
     NSLog(@"### Notification clicked");
     
-    NSString *url = [[notification userInfo] objectForKey:@"url"];    
+    NSString *url = [[notification userInfo] objectForKey:@"url"];
     if (url != nil) {
         UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
         UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
@@ -310,31 +312,31 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     if ( application.applicationState == UIApplicationStateActive ) {
         NSLog(@"### Inside App");
         /*
-        if ([notification.alertAction compare:@"Open URL"] == NSOrderedSame) {
-            NSString *url = [[notification userInfo] objectForKey:@"url"];
-            if (url != nil) {
-                if ([notification.alertAction compare:@"Open URL"] == NSOrderedSame) {
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Внимание" message:@"Вы в зоне действия маяка. Хотите открыть страницу?" delegate:self cancelButtonTitle:@"Нет" otherButtonTitles:@"да", nil];
-                    objc_setAssociatedObject(alert, @"url", url, OBJC_ASSOCIATION_COPY);
-                    [alert show];
-                }
-            }
-        } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Внимание" message:@"Вы покинули зону действия маяка." delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
-            [alert show];
-        }
+         if ([notification.alertAction compare:@"Open URL"] == NSOrderedSame) {
+         NSString *url = [[notification userInfo] objectForKey:@"url"];
+         if (url != nil) {
+         if ([notification.alertAction compare:@"Open URL"] == NSOrderedSame) {
+         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Внимание" message:@"Вы в зоне действия маяка. Хотите открыть страницу?" delegate:self cancelButtonTitle:@"Нет" otherButtonTitles:@"да", nil];
+         objc_setAssociatedObject(alert, @"url", url, OBJC_ASSOCIATION_COPY);
+         [alert show];
+         }
+         }
+         } else {
+         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Внимание" message:@"Вы покинули зону действия маяка." delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
+         [alert show];
+         }
          */
     } else {
         //if ([notification.alertAction compare:@"Open URL"] == NSOrderedSame) {
-            NSString *url = [[notification userInfo] objectForKey:@"url"];
-            if (url != nil) {
-                UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-                UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
-                WebViewController* webController = (WebViewController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"WebViewController"];
-                webController.url = url;
-                [mainController popToViewController:[[mainController viewControllers] objectAtIndex:1] animated:NO];
-                [mainController pushViewController:webController animated:NO];
-            }
+        NSString *url = [[notification userInfo] objectForKey:@"url"];
+        if (url != nil) {
+            UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+            UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+            WebViewController* webController = (WebViewController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"WebViewController"];
+            webController.url = url;
+            [mainController popToViewController:[[mainController viewControllers] objectAtIndex:1] animated:NO];
+            [mainController pushViewController:webController animated:NO];
+        }
         //}
     }
 }
@@ -347,92 +349,137 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
 }
 
 -(void) sendNotificationLeavingRegion:(CLBeaconRegion *)region {
-    NSDictionary *zoneDict = nil;
-    for (NSDictionary *dict in self.beacons) {
-        NSString *udid = [[dict valueForKey:@"udid"] uppercaseString];
-        int major = [[dict valueForKey:@"major"] intValue];
-        int minor = [[dict valueForKey:@"minor"] intValue];
-        if (([region.proximityUUID.UUIDString compare:udid] == NSOrderedSame) &&
-            ([region.major intValue] == major) && ([region.minor intValue] == minor)) {
-            zoneDict = dict;
-            NSLog(@"### dict found: %@", dict);
-            break;
-        }
-    }
-    
-    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-    
-    NSString *message = [zoneDict objectForKey:@"leaving_message"];
-    if ((message != nil) && ([message length] > 0)) {
-        localNotification.alertBody = message;
-    } else {
-        localNotification.alertBody = [NSString stringWithFormat:@"Вы покинули зону действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
-    }
-    
-    UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
-    for (UIViewController *controller in [mainController childViewControllers]) {
-        if ([controller isKindOfClass:MainController.class]) {
-            [((MainController*)controller) leavingRegion:region];
-        }
-    }
-    
-    localNotification.alertAction = @"Leaving zone";
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    
-    NSString *url = [zoneDict objectForKey:@"leaving_url"];
-    if ((url != nil) && ([url length] > 0)) {
-        [dict setValue:url forKey:@"url"];
-    } else {
-        [dict setValue:nil forKey:@"url"];
-    }
-    
-    localNotification.userInfo = dict;
-    NSLog(@"### zone id: %@ leaving", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
-    
-    localNotification.soundName = UILocalNotificationDefaultSoundName;
-    localNotification.applicationIconBadgeNumber = 0;
-    
-    [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+    AFSecurityPolicy *policy = [[AFSecurityPolicy alloc] init];
+    [policy setAllowInvalidCertificates:YES];
+    AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
+    [operationManager setSecurityPolicy:policy];
+    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
+    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
+    NSMutableDictionary *requestDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:region.proximityUUID.UUIDString, @"udid", region.major, @"major", region.minor, @"minor",
+                                        user.userId, @"user_id", nil];
+    [operationManager POST:GET_BEACON_SERVICE_URL
+                parameters: requestDict
+                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                       NSLog(@"response: %@", responseObject);
+                       NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
+                       NSString *message = [responseObject valueForKey:@"message"];
+                       NSDictionary *data = [responseObject valueForKey:@"data"];
+                       NSLog(@"code: %d", code);
+                       NSLog(@"message: %@", message);
+                       NSLog(@"data: %@", data);
+                       
+                       switch (code) {
+                           case 200: {
+                               if(![data isEqual:[NSNull null]]) {
+                                   UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+                                   NSString *message = [data objectForKey:@"leaving_message"];
+                                   if ((message != nil) && ([message length] > 0)) {
+                                       localNotification.alertBody = message;
+                                   } else {
+                                       localNotification.alertBody = [NSString stringWithFormat:@"Вы покинули зону действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
+                                   }
+                                   UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+                                   for (UIViewController *controller in [mainController childViewControllers]) {
+                                       if ([controller isKindOfClass:MainController.class]) {
+                                           [((MainController*)controller) enteringRegion:region];
+                                       }
+                                   }
+                                   localNotification.alertAction = @"Open URL";
+                                   NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
+                                   
+                                   NSString *url = [data objectForKey:@"leaving_url"];
+                                   if (url == nil) {
+                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
+                                   } else {
+                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
+                                   }
+                                   
+                                   localNotification.soundName = UILocalNotificationDefaultSoundName;
+                                   localNotification.applicationIconBadgeNumber = 0;
+                                   
+                                   [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                               }
+                           }
+                           break;
+                           default:
+                           {
+                               NSLog(@"######## Error response code: %d", code);
+                           }
+                           break;
+                       }
+                   }
+                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                       NSLog(@"######## Error: %@", [error description]);
+                   }
+     ];
 }
 
 -(void) sendNotificationEnteringRegion:(CLBeaconRegion*)region {
-    if (region.identifier != nil) {
-        NSDictionary *zoneDict = nil;
-        for (NSDictionary *dict in self.beacons) {
-            NSString *udid = [[dict valueForKey:@"udid"] uppercaseString];
-            int major = [[dict valueForKey:@"major"] intValue];
-            int minor = [[dict valueForKey:@"minor"] intValue];
-            if (([region.proximityUUID.UUIDString compare:udid] == NSOrderedSame) &&
-                ([region.major intValue] == major) && ([region.minor intValue] == minor)) {
-                zoneDict = dict;
-                break;
-            }
-        }
-        
-        UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-        NSString *message = [zoneDict objectForKey:@"message"];
-        if ((message != nil) && ([message length] > 0)) {
-            localNotification.alertBody = message;
-        } else {
-            localNotification.alertBody = [NSString stringWithFormat:@"Вы находитесь в зоне действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
-        }
-        
-        UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
-        for (UIViewController *controller in [mainController childViewControllers]) {
-            if ([controller isKindOfClass:MainController.class]) {
-                [((MainController*)controller) enteringRegion:region];
-            }
-        }
-        
-        localNotification.alertAction = @"Open URL";
-        NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
-        localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
-        
-        localNotification.soundName = UILocalNotificationDefaultSoundName;
-        localNotification.applicationIconBadgeNumber = 0;
-        
-        [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
-    }
+    AFSecurityPolicy *policy = [[AFSecurityPolicy alloc] init];
+    [policy setAllowInvalidCertificates:YES];
+    AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
+    [operationManager setSecurityPolicy:policy];
+    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
+    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
+    NSMutableDictionary *requestDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:region.proximityUUID.UUIDString, @"udid", region.major, @"major", region.minor, @"minor",
+                                        user.userId, @"user_id", nil];
+    [operationManager POST:GET_BEACON_SERVICE_URL
+                parameters: requestDict
+                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                       NSLog(@"response: %@", responseObject);
+                       NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
+                       NSString *message = [responseObject valueForKey:@"message"];
+                       NSDictionary *data = [responseObject valueForKey:@"data"];
+                       NSLog(@"code: %d", code);
+                       NSLog(@"message: %@", message);
+                       NSLog(@"data: %@", data);
+                       
+                       switch (code) {
+                           case 200: {
+                               if(![data isEqual:[NSNull null]]) {
+                                   UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+                                   NSString *message = [data objectForKey:@"enter_message"];
+                                   if ((message != nil) && ([message length] > 0)) {
+                                       localNotification.alertBody = message;
+                                   } else {
+                                       localNotification.alertBody = [NSString stringWithFormat:@"Вы находитесь в зоне действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
+                                   }
+                                   UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+                                   for (UIViewController *controller in [mainController childViewControllers]) {
+                                       if ([controller isKindOfClass:MainController.class]) {
+                                           [((MainController*)controller) enteringRegion:region];
+                                       }
+                                   }
+                                   localNotification.alertAction = @"Open URL";
+                                   NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
+                                   
+                                   NSString *url = [data objectForKey:@"enter_url"];
+                                   if (url == nil) {
+                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
+                                   } else {
+                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
+                                   }
+                                   
+                                   localNotification.soundName = UILocalNotificationDefaultSoundName;
+                                   localNotification.applicationIconBadgeNumber = 0;
+                                   
+                                   [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                               }
+                           }
+                           break;
+                           default:
+                           {
+                                NSLog(@"######## Error response code: %d", code);
+                           }
+                           break;
+                       }
+                   }
+                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                       NSLog(@"######## Error: %@", [error description]);
+                   }
+     ];
 }
 
 
@@ -483,9 +530,7 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                       NSArray *responseData = (NSArray*)responseObject;
                       for (NSDictionary *dict in responseData) {
                           NSMutableDictionary *beacon = [NSMutableDictionary dictionary];
-                          //[beacon setValue:[dict valueForKey:@"udid"] forKey:@"udid"];
-                          [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
-                          
+                          [beacon setValue:[dict valueForKey:@"udid"] forKey:@"udid"];
                           [beacon setValue:[dict valueForKey:@"major"] forKey:@"major"];
                           [beacon setValue:[dict valueForKey:@"minor"] forKey:@"minor"];
                           [beacon setValue:[dict valueForKey:@"enter_url"] forKey:@"url"];
