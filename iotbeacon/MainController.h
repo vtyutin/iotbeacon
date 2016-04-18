@@ -11,12 +11,14 @@
 #import "IBZone.h"
 #import <CoreLocation/CLBeaconRegion.h>
 
-@interface MainController : UIViewController
+@interface MainController : UIViewController <UIWebViewDelegate>
 
 @property (strong) NSString* consumerId;
 @property (strong) NSArray* zones;
 @property (assign) IB2ZoneSortRule sortRule;
 @property (weak, nonatomic) IBOutlet UIButton *zoneButton;
+@property (weak, nonatomic) IBOutlet UIWebView *webView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingIndicator;
 
 - (IBAction)settingButtonPressed:(id)sender;
 - (IBAction)registryButtonPressed:(id)sender;

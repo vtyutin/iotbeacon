@@ -20,14 +20,36 @@
 @implementation MainController
 @synthesize zoneButton;
 @synthesize messageView;
+@synthesize webView;
+@synthesize loadingIndicator;
 
 
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
+//#define MAIN_PAGE_URL @"http://smarthouse.gdknn.ru/nnbis/easyshop/appinterface.php"
+#define MAIN_PAGE_URL @"http://uliyneron.no-ip.org/ibeacon"
 
 - (void)viewDidLoad {
     [super viewDidLoad];        
     
     [zoneButton setHidden:YES];
+    
+    NSUUID *uuid = ((AppDelegate*)[[UIApplication sharedApplication] delegate]).uuid;
+    NSLog(@"UUID: %@", [uuid UUIDString]);
+    
+    NSURL *nsurl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?uid=%@", MAIN_PAGE_URL, [uuid UUIDString]]];
+    NSURLRequest *requestObj = [NSURLRequest requestWithURL:nsurl];
+    [webView setScalesPageToFit:YES];
+    [webView setDelegate:self];
+    [webView loadRequest:requestObj];
+    [loadingIndicator startAnimating];
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)wView
+{
+    NSLog(@"is loading: %d", wView.isLoading);
+    if (!wView.isLoading) {
+        [loadingIndicator stopAnimating];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {

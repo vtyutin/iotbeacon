@@ -31,6 +31,7 @@
 @synthesize currentRegions;
 @synthesize bluetoothManager;
 @synthesize user;
+@synthesize uuid;
 
 BOOL isApplicationActive = NO;
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
@@ -40,11 +41,17 @@ BOOL isApplicationActive = NO;
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
     localNotification.applicationIconBadgeNumber = 0;
     
+#if TARGET_IPHONE_SIMULATOR
+    self.uuid = [[NSUUID alloc] initWithUUIDString:@"SIMULATOR"];
+#else
+    self.uuid = [UIDevice currentDevice].identifierForVendor;
+#endif
+    
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     
     UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
     [mainController setNavigationBarHidden:YES];
-    
+    /*
     RegistryController* registryController = (RegistryController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"RegistryController"];
     
     
@@ -62,10 +69,10 @@ BOOL isApplicationActive = NO;
     }
     
     [mainController pushViewController:registryController animated:NO];
-    
-    if (user != nil) {
+    */
+    //if (user != nil) {
         [mainController pushViewController:[mainStoryboard instantiateViewControllerWithIdentifier:@"MainController"] animated:NO];
-    }
+    //}
     
     self.bluetoothManager = [[CBCentralManager alloc] init];
     
@@ -353,13 +360,19 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     [policy setAllowInvalidCertificates:YES];
     AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
     [operationManager setSecurityPolicy:policy];
-    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    operationManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    [operationManager.requestSerializer setValue:@"*/*" forHTTPHeaderField:@"Accept"];
+    [operationManager.requestSerializer setValue:@"gzip, deflate, utf8                            " forHTTPHeaderField:@"Accept-Encoding"];
+    [operationManager.requestSerializer setValue:@"en-US,en;q=0.8,ru;q=0.6" forHTTPHeaderField:@"Accept-Language"];
+    [operationManager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
-    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
-    NSMutableDictionary *requestDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:region.proximityUUID.UUIDString, @"udid", region.major, @"major", region.minor, @"minor",
-                                        user.userId, @"user_id", nil];
-    [operationManager POST:GET_BEACON_SERVICE_URL
-                parameters: requestDict
+    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
+    
+    NSString *requestData = [NSString stringWithFormat:@"major=%d&minor=%d&udid=%@&uid=%d", [region.major integerValue], [region.minor integerValue], [region.proximityUUID.UUIDString lowercaseString], [user.userId  integerValue]];
+    
+    NSLog(@"request data: %@", requestData);
+    [operationManager GET:[NSString stringWithFormat:@"%@?%@", GET_BEACON_SERVICE_URL, requestData]
+               parameters: nil
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
                        NSLog(@"response: %@", responseObject);
                        NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
@@ -420,14 +433,21 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     [policy setAllowInvalidCertificates:YES];
     AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
     [operationManager setSecurityPolicy:policy];
-    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    operationManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    [operationManager.requestSerializer setValue:@"*/*" forHTTPHeaderField:@"Accept"];
+    [operationManager.requestSerializer setValue:@"gzip, deflate, utf8                            " forHTTPHeaderField:@"Accept-Encoding"];
+    [operationManager.requestSerializer setValue:@"en-US,en;q=0.8,ru;q=0.6" forHTTPHeaderField:@"Accept-Language"];
+    [operationManager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
-    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
-    NSMutableDictionary *requestDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:region.proximityUUID.UUIDString, @"udid", region.major, @"major", region.minor, @"minor",
-                                        user.userId, @"user_id", nil];
-    [operationManager POST:GET_BEACON_SERVICE_URL
-                parameters: requestDict
+    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
+    
+    NSString *requestData = [NSString stringWithFormat:@"major=%d&minor=%d&udid=%@&uid=%d", [region.major integerValue], [region.minor integerValue], [region.proximityUUID.UUIDString lowercaseString], [user.userId  integerValue]];
+    
+    NSLog(@"request data: %@", requestData);
+    [operationManager GET:[NSString stringWithFormat:@"%@?%@", GET_BEACON_SERVICE_URL, requestData]
+                parameters: nil
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                       NSLog(@"response data: %@", [[NSString alloc] initWithData:operation.responseData encoding:NSUTF8StringEncoding]);
                        NSLog(@"response: %@", responseObject);
                        NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
                        NSString *message = [responseObject valueForKey:@"message"];
@@ -441,7 +461,7 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                                if(![data isEqual:[NSNull null]]) {
                                    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
                                    NSString *message = [data objectForKey:@"enter_message"];
-                                   if ((message != nil) && ([message length] > 0)) {
+                                   if ((message != nil) && (![message isEqual:[NSNull null]]) && ([message length] > 0)) {
                                        localNotification.alertBody = message;
                                    } else {
                                        localNotification.alertBody = [NSString stringWithFormat:@"Вы находитесь в зоне действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
@@ -456,7 +476,7 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                                    NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
                                    
                                    NSString *url = [data objectForKey:@"enter_url"];
-                                   if (url == nil) {
+                                   if ((url == nil) || ([message isEqual:[NSNull null]])) {
                                        localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
                                    } else {
                                        localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];

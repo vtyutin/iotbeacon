@@ -13,6 +13,7 @@
 
 @property (strong, nonatomic) UIWindow *window;
 @property (retain, nonatomic) NSMutableArray *beacons;
+@property (retain, nonatomic) NSUUID *uuid;
 
 - (void)reinitBeaconApi;
 
