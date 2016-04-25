@@ -17,12 +17,23 @@
 #import <CoreLocation/CLLocation.h>
 #import <CoreLocation/CLBeaconRegion.h>
 #import "AFHTTPRequestOperationManager.h"
+#import <Google/CloudMessaging.h>
 
 @interface AppDelegate ()<CBCentralManagerDelegate>
 @property (strong, nonatomic)CBCentralManager *bluetoothManager;
 @property (strong, nonatomic) CLLocationManager *manager;
 @property (strong, nonatomic) NSMutableArray *currentRegions;
 @property (strong, nonatomic) UserData *user;
+
+@property(nonatomic, strong) void (^registrationHandler)
+(NSString *registrationToken, NSError *error);
+@property(nonatomic, assign) BOOL connectedToGCM;
+@property(nonatomic, strong) NSString* registrationToken;
+@property(nonatomic, strong) NSString* registrationKey;
+@property(nonatomic, strong) NSString* messageKey;
+@property(nonatomic, strong) NSString* gcmSenderID;
+@property(nonatomic, strong) NSDictionary* registrationOptions;
+@property(nonatomic, assign) BOOL subscribedToTopic;
 @end
 
 @implementation AppDelegate
@@ -37,6 +48,10 @@ BOOL isApplicationActive = NO;
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
 #define GET_BEACON_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/ibeacon.php"
 
+#define TEST_ENTERING_ZONE 0
+
+NSString *const SubscriptionTopic = @"/topics/message";
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
     localNotification.applicationIconBadgeNumber = 0;
@@ -47,32 +62,15 @@ BOOL isApplicationActive = NO;
     self.uuid = [UIDevice currentDevice].identifierForVendor;
 #endif
     
+    self.user = [[UserData alloc] init];
+    user.userId = [NSNumber numberWithInt:0];
+    
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     
     UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
     [mainController setNavigationBarHidden:YES];
-    /*
-    RegistryController* registryController = (RegistryController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"RegistryController"];
-    
-    
-    self.user = nil;
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"last_name"] != nil) {
-        self.user = [[UserData alloc] init];
-        user.lastName = [[NSUserDefaults standardUserDefaults] objectForKey:@"last_name"];
-        user.firstName = [[NSUserDefaults standardUserDefaults] objectForKey:@"first_name"];
-        user.middleName = [[NSUserDefaults standardUserDefaults] objectForKey:@"middle_name"];
-        user.email = [[NSUserDefaults standardUserDefaults] objectForKey:@"email"];
-        user.occupation = [[NSUserDefaults standardUserDefaults] objectForKey:@"occupation"];
-        user.birthDate = [[NSUserDefaults standardUserDefaults] objectForKey:@"birthdate"];
-        user.userId = [[NSUserDefaults standardUserDefaults] objectForKey:@"userId"];
-        [registryController setUser:user];
-    }
-    
-    [mainController pushViewController:registryController animated:NO];
-    */
-    //if (user != nil) {
         [mainController pushViewController:[mainStoryboard instantiateViewControllerWithIdentifier:@"MainController"] animated:NO];
-    //}
+                                            //instantiateViewControllerWithIdentifier:@"RegistryController"] animated:NO];
     
     self.bluetoothManager = [[CBCentralManager alloc] init];
     
@@ -87,6 +85,7 @@ BOOL isApplicationActive = NO;
     [UIUserNotificationSettings settingsForTypes:types categories:nil];
     
     [[UIApplication sharedApplication] registerUserNotificationSettings:mySettings];
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
     
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:10];
     
@@ -113,6 +112,58 @@ BOOL isApplicationActive = NO;
     } else {
         [self reinitBeaconApi];
     }
+    
+    // Google Cloud Messaging
+    _registrationKey = @"onRegistrationCompleted";
+    _messageKey = @"onMessageReceived";
+    // Configure the Google context: parses the GoogleService-Info.plist, and initializes
+    // the services that have entries in the file
+    NSError* configureError;
+    [[GGLContext sharedInstance] configureWithError:&configureError];
+    NSAssert(!configureError, @"Error configuring Google services: %@", configureError);
+    _gcmSenderID = [[[GGLContext sharedInstance] configuration] gcmSenderID];
+    NSLog(@"sender id: %@", _gcmSenderID);
+    // Register for remote notifications
+    if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_7_1) {
+        // iOS 7.1 or earlier
+        UIRemoteNotificationType allNotificationTypes =
+        (UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge);
+        [application registerForRemoteNotificationTypes:allNotificationTypes];
+    } else {
+        // iOS 8 or later
+        // [END_EXCLUDE]
+        UIUserNotificationType allNotificationTypes =
+        (UIUserNotificationTypeSound | UIUserNotificationTypeAlert | UIUserNotificationTypeBadge);
+        UIUserNotificationSettings *settings =
+        [UIUserNotificationSettings settingsForTypes:allNotificationTypes categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    }
+    // [END register_for_remote_notifications]
+    // [START start_gcm_service]
+    GCMConfig *gcmConfig = [GCMConfig defaultConfig];
+    gcmConfig.receiverDelegate = self;
+    [[GCMService sharedInstance] startWithConfig:gcmConfig];
+    // [END start_gcm_service]
+    __weak typeof(self) weakSelf = self;
+    // Handler for registration token request
+    _registrationHandler = ^(NSString *registrationToken, NSError *error){
+        if (registrationToken != nil) {
+            weakSelf.registrationToken = registrationToken;
+            NSLog(@"Registration Token: %@", registrationToken);
+            [weakSelf subscribeToTopic];
+            NSDictionary *userInfo = @{@"registrationToken":registrationToken};
+            [[NSNotificationCenter defaultCenter] postNotificationName:weakSelf.registrationKey
+                                                                object:nil
+                                                              userInfo:userInfo];
+        } else {
+            NSLog(@"Registration to GCM failed with error: %@", error.localizedDescription);
+            NSDictionary *userInfo = @{@"error":error.localizedDescription};
+            [[NSNotificationCenter defaultCenter] postNotificationName:weakSelf.registrationKey
+                                                                object:nil
+                                                              userInfo:userInfo];
+        }
+    };
     
     return YES;
 }
@@ -174,32 +225,32 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
             [currentRegions addObject:region];
             [self sendNotificationEnteringRegion:(CLBeaconRegion*)region];
         }
+        if (TEST_ENTERING_ZONE == 1) {
+            [self sendNotificationEnteringRegion:(CLBeaconRegion*)region];
+        }
     }
 }
 
 - (void)didExitRegion:(CLRegion *)region {
     NSLog(@"did exit region: %@", region);
+    BOOL isNotificationSent = NO;
     if ([region isKindOfClass:CLBeaconRegion.class]) {
-        CLRegion *regionToRemove = nil;
         for (CLBeaconRegion *current in currentRegions) {
             if ([self isRegion:current identicalTo:(CLBeaconRegion*)region]) {
-                regionToRemove = current;
+                [currentRegions removeObject:current];
+                if (isNotificationSent == NO) {
+                    [self sendNotificationLeavingRegion:(CLBeaconRegion*)region];
+                    isNotificationSent = YES;
+                }
                 break;
             }
-        }
-        if (regionToRemove != nil) {
-            [self sendNotificationLeavingRegion:(CLBeaconRegion*)region];
-            [currentRegions removeObject:regionToRemove];
         }
     }
 }
 
 - (BOOL)isRegion:(CLBeaconRegion*)regionOne identicalTo:(CLBeaconRegion*)regionTwo {
-    if (([regionOne.proximityUUID.UUIDString compare:regionTwo.proximityUUID.UUIDString] == NSOrderedSame) &&
-        ([regionOne.major intValue] == [regionTwo.major intValue]) && ([regionOne.minor intValue] == [regionTwo.minor intValue]) && ([regionOne.identifier compare:regionTwo.identifier] == NSOrderedSame)) {
-        return YES;
-    }
-    return NO;
+    return (([[regionOne.proximityUUID.UUIDString lowercaseString] compare:[regionTwo.proximityUUID.UUIDString lowercaseString]] == NSOrderedSame) &&
+            ([regionOne.major intValue] == [regionTwo.major intValue]) && ([regionOne.minor intValue] == [regionTwo.minor intValue]));
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -230,6 +281,19 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 0];
+    
+    // Connect to the GCM server to receive non-APNS notifications
+    [[GCMService sharedInstance] connectWithHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"Could not connect to GCM: %@", error.localizedDescription);
+        } else {
+            _connectedToGCM = true;
+            NSLog(@"Connected to GCM");
+            // [START_EXCLUDE]
+            [self subscribeToTopic];
+            // [END_EXCLUDE]
+        }
+    }];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -341,7 +405,7 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
             UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
             WebViewController* webController = (WebViewController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"WebViewController"];
             webController.url = url;
-            [mainController popToViewController:[[mainController viewControllers] objectAtIndex:1] animated:NO];
+            [mainController popToViewController:[[mainController viewControllers] objectAtIndex:0] animated:NO];
             [mainController pushViewController:webController animated:NO];
         }
         //}
@@ -353,6 +417,10 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     //Tell the system that you ar done.
     NSLog(@"##### FETCH DATA VERSION #####");
     [self checkDataVersionWithCompletionHandler:completionHandler];
+    
+    if (TEST_ENTERING_ZONE == 1) {
+        [self didEnterRegion:[[[manager monitoredRegions] allObjects] firstObject]];
+    }
 }
 
 -(void) sendNotificationLeavingRegion:(CLBeaconRegion *)region {
@@ -360,19 +428,15 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     [policy setAllowInvalidCertificates:YES];
     AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
     [operationManager setSecurityPolicy:policy];
-    operationManager.requestSerializer = [AFHTTPRequestSerializer serializer];
-    [operationManager.requestSerializer setValue:@"*/*" forHTTPHeaderField:@"Accept"];
-    [operationManager.requestSerializer setValue:@"gzip, deflate, utf8                            " forHTTPHeaderField:@"Accept-Encoding"];
-    [operationManager.requestSerializer setValue:@"en-US,en;q=0.8,ru;q=0.6" forHTTPHeaderField:@"Accept-Language"];
-    [operationManager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
     
-    NSString *requestData = [NSString stringWithFormat:@"major=%d&minor=%d&udid=%@&uid=%d", [region.major integerValue], [region.minor integerValue], [region.proximityUUID.UUIDString lowercaseString], [user.userId  integerValue]];
+    NSDictionary *requestDict = [NSDictionary dictionaryWithObjectsAndKeys:region.major, @"major", region.minor, @"minor", [region.proximityUUID.UUIDString lowercaseString], @"udid", user.userId, @"uid", nil];
     
-    NSLog(@"request data: %@", requestData);
-    [operationManager GET:[NSString stringWithFormat:@"%@?%@", GET_BEACON_SERVICE_URL, requestData]
-               parameters: nil
+    NSLog(@"request data: %@", requestDict);
+    [operationManager POST:GET_BEACON_SERVICE_URL
+                parameters: requestDict
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
                        NSLog(@"response: %@", responseObject);
                        NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
@@ -386,32 +450,38 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                            case 200: {
                                if(![data isEqual:[NSNull null]]) {
                                    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+                                   localNotification.alertBody = nil;
                                    NSString *message = [data objectForKey:@"leaving_message"];
                                    if ((message != nil) && ([message length] > 0)) {
                                        localNotification.alertBody = message;
-                                   } else {
+                                   }/* else {
                                        localNotification.alertBody = [NSString stringWithFormat:@"Вы покинули зону действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
                                    }
+                                   
                                    UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
                                    for (UIViewController *controller in [mainController childViewControllers]) {
                                        if ([controller isKindOfClass:MainController.class]) {
                                            [((MainController*)controller) enteringRegion:region];
                                        }
                                    }
-                                   localNotification.alertAction = @"Open URL";
-                                   NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
+                                     */
+                                   //localNotification.alertAction = @"Open URL";
+                                   //NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
                                    
                                    NSString *url = [data objectForKey:@"leaving_url"];
-                                   if (url == nil) {
-                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
-                                   } else {
+                                   if (url != nil) {
+                                       //localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
                                        localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
+                                   }/* else {
+                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
+                                     localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
                                    }
-                                   
+                                   */
                                    localNotification.soundName = UILocalNotificationDefaultSoundName;
                                    localNotification.applicationIconBadgeNumber = 0;
-                                   
-                                   [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                                   if ((localNotification.alertBody != nil) && (url != nil)) {
+                                       [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                                   }
                                }
                            }
                            break;
@@ -433,19 +503,15 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     [policy setAllowInvalidCertificates:YES];
     AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
     [operationManager setSecurityPolicy:policy];
-    operationManager.requestSerializer = [AFHTTPRequestSerializer serializer];
-    [operationManager.requestSerializer setValue:@"*/*" forHTTPHeaderField:@"Accept"];
-    [operationManager.requestSerializer setValue:@"gzip, deflate, utf8                            " forHTTPHeaderField:@"Accept-Encoding"];
-    [operationManager.requestSerializer setValue:@"en-US,en;q=0.8,ru;q=0.6" forHTTPHeaderField:@"Accept-Language"];
-    [operationManager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
     
-    NSString *requestData = [NSString stringWithFormat:@"major=%d&minor=%d&udid=%@&uid=%d", [region.major integerValue], [region.minor integerValue], [region.proximityUUID.UUIDString lowercaseString], [user.userId  integerValue]];
+    NSDictionary *requestDict = [NSDictionary dictionaryWithObjectsAndKeys:region.major, @"major", region.minor, @"minor", [region.proximityUUID.UUIDString lowercaseString], @"udid", user.userId, @"uid", nil];
     
-    NSLog(@"request data: %@", requestData);
-    [operationManager GET:[NSString stringWithFormat:@"%@?%@", GET_BEACON_SERVICE_URL, requestData]
-                parameters: nil
+    NSLog(@"request data: %@", requestDict);
+    [operationManager POST:GET_BEACON_SERVICE_URL
+                parameters: requestDict
                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
                        NSLog(@"response data: %@", [[NSString alloc] initWithData:operation.responseData encoding:NSUTF8StringEncoding]);
                        NSLog(@"response: %@", responseObject);
@@ -460,32 +526,38 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                            case 200: {
                                if(![data isEqual:[NSNull null]]) {
                                    UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+                                   localNotification.alertBody = nil;
                                    NSString *message = [data objectForKey:@"enter_message"];
-                                   if ((message != nil) && (![message isEqual:[NSNull null]]) && ([message length] > 0)) {
+                                   if ((message != nil) && ([message length] > 0)) {
                                        localNotification.alertBody = message;
-                                   } else {
-                                       localNotification.alertBody = [NSString stringWithFormat:@"Вы находитесь в зоне действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
-                                   }
-                                   UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
-                                   for (UIViewController *controller in [mainController childViewControllers]) {
-                                       if ([controller isKindOfClass:MainController.class]) {
-                                           [((MainController*)controller) enteringRegion:region];
-                                       }
-                                   }
-                                   localNotification.alertAction = @"Open URL";
-                                   NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
+                                   }/* else {
+                                     localNotification.alertBody = [NSString stringWithFormat:@"Вы покинули зону действия маяка %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]];
+                                     }
+                                     
+                                     UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+                                     for (UIViewController *controller in [mainController childViewControllers]) {
+                                     if ([controller isKindOfClass:MainController.class]) {
+                                     [((MainController*)controller) enteringRegion:region];
+                                     }
+                                     }
+                                     */
+                                   //localNotification.alertAction = @"Open URL";
+                                   //NSLog(@"### zone id: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1]);
                                    
                                    NSString *url = [data objectForKey:@"enter_url"];
-                                   if ((url == nil) || ([message isEqual:[NSNull null]])) {
-                                       localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
-                                   } else {
+                                   if (url != nil) {
+                                       //localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
                                        localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
-                                   }
-                                   
+                                   }/* else {
+                                     localNotification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
+                                     localNotification.userInfo = [NSDictionary dictionaryWithObject:[[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1] forKey:@"url"];
+                                     }
+                                     */
                                    localNotification.soundName = UILocalNotificationDefaultSoundName;
                                    localNotification.applicationIconBadgeNumber = 0;
-                                   
-                                   [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                                   if ((localNotification.alertBody != nil) && (url != nil)) {
+                                       [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                                   }
                                }
                            }
                            break;
@@ -586,6 +658,136 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInteger:version] forKey:@"data_version"];
     
     completionHandler(UIBackgroundFetchResultNewData);
+}
+
+
+- (void)subscribeToTopic {
+    // If the app has a registration token and is connected to GCM, proceed to subscribe to the
+    // topic
+    if (_registrationToken && _connectedToGCM) {
+        [[GCMPubSub sharedInstance] subscribeWithToken:_registrationToken
+                                                 topic:SubscriptionTopic
+                                               options:nil
+                                               handler:^(NSError *error) {
+                                                   if (error) {
+                                                       // Treat the "already subscribed" error more gently
+                                                       if (error.code == 3001) {
+                                                           NSLog(@"Already subscribed to %@",
+                                                                 SubscriptionTopic);
+                                                       } else {
+                                                           NSLog(@"Subscription failed: %@",
+                                                                 error.localizedDescription);
+                                                       }
+                                                   } else {
+                                                       self.subscribedToTopic = true;
+                                                       NSLog(@"Subscribed to %@", SubscriptionTopic);
+                                                   }
+                                               }];
+    }
+}
+
+// [START receive_apns_token]
+- (void)application:(UIApplication *)application
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"didRegisterForRemoteNotificationsWithDeviceToken: %@", deviceToken);
+    // [END receive_apns_token]
+    // [START get_gcm_reg_token]
+    // Create a config and set a delegate that implements the GGLInstaceIDDelegate protocol.
+    GGLInstanceIDConfig *instanceIDConfig = [GGLInstanceIDConfig defaultConfig];
+    instanceIDConfig.delegate = self;
+    // Start the GGLInstanceID shared instance with the that config and request a registration
+    // token to enable reception of notifications
+    [[GGLInstanceID sharedInstance] startWithConfig:instanceIDConfig];
+    _registrationOptions = @{kGGLInstanceIDRegisterAPNSOption:deviceToken,
+                             kGGLInstanceIDAPNSServerTypeSandboxOption:@YES};
+    [[GGLInstanceID sharedInstance] tokenWithAuthorizedEntity:_gcmSenderID
+                                                        scope:kGGLInstanceIDScopeGCM
+                                                      options:_registrationOptions
+                                                      handler:_registrationHandler];
+    // [END get_gcm_reg_token]
+}
+
+// [START receive_apns_token_error]
+- (void)application:(UIApplication *)application
+didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    NSLog(@"Registration for remote notification failed with error: %@", error.localizedDescription);
+    // [END receive_apns_token_error]
+    NSDictionary *userInfo = @{@"error" :error.localizedDescription};
+    [[NSNotificationCenter defaultCenter] postNotificationName:_registrationKey
+                                                        object:nil
+                                                      userInfo:userInfo];
+}
+
+// [START ack_message_reception]
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    NSLog(@"Notification received: %@", userInfo);
+    if ([[userInfo valueForKey:@"message"] compare:@"TEST_ENTER"] == NSOrderedSame) {
+        [self didEnterRegion:[[[manager monitoredRegions] allObjects] firstObject]];
+    } else if ([[userInfo valueForKey:@"message"] compare:@"TEST_EXIT"] == NSOrderedSame) {
+        [self didExitRegion:[[[manager monitoredRegions] allObjects] firstObject]];
+    }
+    // This works only if the app started the GCM service
+    //[[GCMService sharedInstance] appDidReceiveMessage:userInfo];
+    // Handle the received message
+    // [START_EXCLUDE]
+    //[[NSNotificationCenter defaultCenter] postNotificationName:_messageKey
+    //                                                    object:nil
+    //                                                  userInfo:userInfo];
+    // [END_EXCLUDE]
+}
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler {
+    NSLog(@"Notification received: %@", userInfo);
+    // This works only if the app started the GCM service
+    //[[GCMService sharedInstance] appDidReceiveMessage:userInfo];
+    // Handle the received message
+    // Invoke the completion handler passing the appropriate UIBackgroundFetchResult value
+    // [START_EXCLUDE]
+    //[[NSNotificationCenter defaultCenter] postNotificationName:_messageKey
+    //                                                    object:nil
+    //                                                  userInfo:userInfo];
+    if ([[userInfo valueForKey:@"message"] compare:@"TEST_ENTER"] == NSOrderedSame) {
+        [self didEnterRegion:[[[manager monitoredRegions] allObjects] firstObject]];
+    } else if ([[userInfo valueForKey:@"message"] compare:@"TEST_EXIT"] == NSOrderedSame) {
+        [self didExitRegion:[[[manager monitoredRegions] allObjects] firstObject]];
+    }
+    handler(UIBackgroundFetchResultNoData);
+    // [END_EXCLUDE]
+}
+// [END ack_message_reception]
+
+// [START on_token_refresh]
+- (void)onTokenRefresh {
+    // A rotation of the registration tokens is happening, so the app needs to request a new token.
+    NSLog(@"The GCM registration token needs to be changed.");
+    [[GGLInstanceID sharedInstance] tokenWithAuthorizedEntity:_gcmSenderID
+                                                        scope:kGGLInstanceIDScopeGCM
+                                                      options:_registrationOptions
+                                                      handler:_registrationHandler];
+}
+// [END on_token_refresh]
+
+// [START upstream_callbacks]
+- (void)willSendDataMessageWithID:(NSString *)messageID error:(NSError *)error {
+    if (error) {
+        // Failed to send the message.
+    } else {
+        // Will send message, you can save the messageID to track the message
+    }
+}
+
+- (void)didSendDataMessageWithID:(NSString *)messageID {
+    // Did successfully send message identified by messageID
+}
+// [END upstream_callbacks]
+
+- (void)didDeleteMessagesOnServer {
+    // Some messages sent to this device were deleted on the GCM server before reception, likely
+    // because the TTL expired. The client should notify the app server of this, so that the app
+    // server can resend those messages.
 }
 
 @end

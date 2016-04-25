@@ -70,8 +70,6 @@
                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
                       NSLog(@"response: %@", responseObject);
                       NSInteger version = [[responseObject valueForKey:@"version"] integerValue];
-                      // TODO remove this line
-                      //version = 2;
                       
                       NSString *pathToVersion = [responseObject valueForKey:@"data_file"];
                       
@@ -106,19 +104,6 @@
                       NSArray *responseData = (NSArray*)responseObject;
                       for (NSDictionary *dict in responseData) {
                           NSMutableDictionary *beacon = [NSMutableDictionary dictionary];
-                          /* TODO remove this code */
-                          /*
-                          [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
-                          [beacon setValue:[NSNumber numberWithInteger:5] forKey:@"major"];
-                          [beacon setValue:[NSNumber numberWithInteger:5] forKey:@"minor"];
-                          [beacon setValue:@"http://yandex.ru" forKey:@"url"];
-                          [beacon setValue:@"Привет. Заходи к нам на сайт." forKey:@"message"];
-                          [beacon setValue:@"http://google.com" forKey:@"leaving_url"];
-                          [beacon setValue:@"Жаль, что уходишь." forKey:@"leaving_message"];
-                          [beacon setValue:[NSNumber numberWithInteger:5] forKey:@"id"];
-                          */
-                          /* TODO */
-                          
                           [beacon setValue:[dict valueForKey:@"udid"] forKey:@"udid"];
                           [beacon setValue:[dict valueForKey:@"major"] forKey:@"major"];
                           [beacon setValue:[dict valueForKey:@"minor"] forKey:@"minor"];
@@ -202,16 +187,17 @@
 
 }
 
-- (void)leavingRegion:(CLBeaconRegion*)region {
+- (void)leavingRegion:(CLBeaconRegion*)region {/*
     [zoneButton setTitle:@"" forState:UIControlStateNormal];
     objc_setAssociatedObject(zoneButton, @"url", nil, OBJC_ASSOCIATION_COPY);
-    [zoneButton setHidden:YES];
+    [zoneButton setHidden:YES];*/
 }
 
 - (void)enteringRegion:(CLBeaconRegion*)region {
+    /*
     [zoneButton setTitle:[NSString stringWithFormat:@"Текущая зона: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]] forState:UIControlStateNormal];
     objc_setAssociatedObject(zoneButton, @"url", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1], OBJC_ASSOCIATION_COPY);
-    [zoneButton setHidden:NO];
+    [zoneButton setHidden:NO];*/
 }
 
 @end

@@ -10,43 +10,43 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "iotbeacon/AppDelegate.m"
-            timestampString = "482401900.797708"
+            timestampString = "483285057.260594"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
-            landmarkName = "-reinitBeaconApi"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "-application:didFinishLaunchingWithOptions:"
             landmarkType = "5">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[AppDelegate reinitBeaconApi]"
+                  symbolName = "-[AppDelegate application:didFinishLaunchingWithOptions:]"
                   moduleName = "iotbeacon"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///TVV/iPhone_Apps/iotbeacon/iotbeacon/AppDelegate.m"
-                  timestampString = "481063222.938142"
+                  timestampString = "483020806.676232"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "124"
-                  endingLineNumber = "124"
-                  offsetFromSymbolStart = "402">
+                  startingLineNumber = "148"
+                  endingLineNumber = "148"
+                  offsetFromSymbolStart = "4010">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[AppDelegate reinitBeaconApi]"
+                  symbolName = "__57-[AppDelegate application:didFinishLaunchingWithOptions:]_block_invoke"
                   moduleName = "iotbeacon"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///TVV/iPhone_Apps/iotbeacon/iotbeacon/AppDelegate.m"
-                  timestampString = "481063222.938581"
+                  timestampString = "483020806.676617"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "124"
-                  endingLineNumber = "124"
-                  offsetFromSymbolStart = "416">
+                  startingLineNumber = "149"
+                  endingLineNumber = "149"
+                  offsetFromSymbolStart = "46">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -58,12 +58,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "iotbeacon/AppDelegate.m"
-            timestampString = "482401900.797708"
+            timestampString = "483285057.260594"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "434"
-            endingLineNumber = "434"
-            landmarkName = "-sendNotificationEnteringRegion:"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
+            landmarkName = "-application:didFinishLaunchingWithOptions:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
