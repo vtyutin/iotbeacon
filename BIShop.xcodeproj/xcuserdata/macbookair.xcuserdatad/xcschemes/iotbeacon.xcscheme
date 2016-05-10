@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D09616D61C2C1B340004C4F9"
-               BuildableName = "iotbeacon.app"
-               BlueprintName = "iotbeacon"
-               ReferencedContainer = "container:iotbeacon.xcodeproj">
+               BuildableName = "BIShop.app"
+               BlueprintName = "BIShop"
+               ReferencedContainer = "container:BIShop.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -47,9 +47,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D09616D61C2C1B340004C4F9"
-            BuildableName = "iotbeacon.app"
-            BlueprintName = "iotbeacon"
-            ReferencedContainer = "container:iotbeacon.xcodeproj">
+            BuildableName = "BIShop.app"
+            BlueprintName = "BIShop"
+            ReferencedContainer = "container:BIShop.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D09616D61C2C1B340004C4F9"
-            BuildableName = "iotbeacon.app"
-            BlueprintName = "iotbeacon"
-            ReferencedContainer = "container:iotbeacon.xcodeproj">
+            BuildableName = "BIShop.app"
+            BlueprintName = "BIShop"
+            ReferencedContainer = "container:BIShop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -89,9 +89,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D09616D61C2C1B340004C4F9"
-            BuildableName = "iotbeacon.app"
-            BlueprintName = "iotbeacon"
-            ReferencedContainer = "container:iotbeacon.xcodeproj">
+            BuildableName = "BIShop.app"
+            BlueprintName = "BIShop"
+            ReferencedContainer = "container:BIShop.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

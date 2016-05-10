@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:iotbeacon.xcodeproj">
+      location = "group:/TVV/iPhone_Apps/iotbeacon/BIShop.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

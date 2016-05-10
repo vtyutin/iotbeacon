@@ -9,7 +9,6 @@
 #import "MainController.h"
 #import "AppDelegate.h"
 #import <objc/runtime.h>
-#import "WebViewController.h"
 #import "ZoneManagerConsumer.h"
 #import "SettingsController.h"
 #import "AFHTTPRequestOperationManager.h"
@@ -22,20 +21,36 @@
 @synthesize messageView;
 @synthesize webView;
 @synthesize loadingIndicator;
+@synthesize buttonsView;
 
 
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
 //#define MAIN_PAGE_URL @"http://smarthouse.gdknn.ru/nnbis/easyshop/appinterface.php"
 #define MAIN_PAGE_URL @"http://uliyneron.no-ip.org/ibeacon"
+#define GET_BEACON_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/ibeacon.php"
+#define BUTTONS_VIEW_OFFSET 15
 
 - (void)viewDidLoad {
     [super viewDidLoad];        
     
     [zoneButton setHidden:YES];
     
+    [self resetToHomePage];
+}
+
+- (void)loadUrl:(NSString*)url {
+    if (url != nil) {
+        NSURL *nsurl = [NSURL URLWithString:url];
+        NSURLRequest *requestObj = [NSURLRequest requestWithURL:nsurl];
+        [webView setScalesPageToFit:YES];
+        [webView setDelegate:self];
+        [webView loadRequest:requestObj];
+        [loadingIndicator startAnimating];
+    }
+}
+
+- (void)resetToHomePage {
     NSUUID *uuid = ((AppDelegate*)[[UIApplication sharedApplication] delegate]).uuid;
-    NSLog(@"UUID: %@", [uuid UUIDString]);
-    
     NSURL *nsurl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?uid=%@", MAIN_PAGE_URL, [uuid UUIDString]]];
     NSURLRequest *requestObj = [NSURLRequest requestWithURL:nsurl];
     [webView setScalesPageToFit:YES];
@@ -44,12 +59,77 @@
     [loadingIndicator startAnimating];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidth = screenRect.size.width;
+    CGFloat screenHeight = screenRect.size.height;
+    CGFloat frameW, frameH, frameX, frameY;
+    frameW = screenWidth / 7.0;
+    frameH = frameW * 3.0;
+    frameX = screenWidth - BUTTONS_VIEW_OFFSET;
+    frameY = (screenHeight / 2.0) - (frameH / 2.0);
+    [buttonsView setFrame:CGRectMake(frameX, frameY, frameW, frameH)];
+    
+    if ([[buttonsView gestureRecognizers] count] == 0) {
+        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(buttonsViewPressed)];
+        [buttonsView addGestureRecognizer:recognizer];
+    }
+    buttonsView.userInteractionEnabled = YES;
+}
+
+- (void)buttonsViewPressed {
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidth = screenRect.size.width;
+    if (buttonsView.frame.origin.x == (screenWidth - BUTTONS_VIEW_OFFSET)) {
+        [self showButtons];
+    } else {
+        [self hideButtons];
+    }
+}
+
+- (void)hideButtons {
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidth = screenRect.size.width;
+    buttonsView.userInteractionEnabled = NO;
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.5];
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(viewAnimationDidStop:finished:context:)];
+    buttonsView.frame = CGRectMake(screenWidth - BUTTONS_VIEW_OFFSET, buttonsView.frame.origin.y, buttonsView.frame.size.width, buttonsView.frame.size.height);
+    [UIView commitAnimations];
+}
+
+- (void)showButtons {
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    CGFloat screenWidth = screenRect.size.width;
+    buttonsView.userInteractionEnabled = NO;
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.5];
+    [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(viewAnimationDidStop:finished:context:)];
+    buttonsView.frame = CGRectMake(screenWidth - buttonsView.frame.size.width, buttonsView.frame.origin.y, buttonsView.frame.size.width, buttonsView.frame.size.height);
+    [UIView commitAnimations];
+}
+
+- (void)viewAnimationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
+    buttonsView.userInteractionEnabled = YES;
+}
+
 - (void)webViewDidFinishLoad:(UIWebView *)wView
 {
-    NSLog(@"is loading: %d", wView.isLoading);
     if (!wView.isLoading) {
         [loadingIndicator stopAnimating];
+        [self hideButtons];
     }
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    [loadingIndicator stopAnimating];
+    [self hideButtons];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Ошибка" message:@"Проверьте соединение с интернетом. Повторить попытку." delegate:self cancelButtonTitle:@"ok" otherButtonTitles:@"отмена", nil];
+    [alert show];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -80,10 +160,14 @@
                   }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                       NSLog(@"######## Error: %@", [error description]);
-                      UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"can't connect server. Please check your network." delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
-                      [alert show];
                   }
      ];
+}
+
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 0) {
+        [self resetToHomePage];
+    }
 }
 
 - (void)loadNewData:(NSString*)pathToData forVersion:(NSInteger)version {
@@ -119,9 +203,7 @@
                   }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                       [messageView setHidden:YES];
-                      NSLog(@"######## Error: %@", [error description]);
-                      UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"can't connect server. Please check your network." delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil];
-                      [alert show];
+                      NSLog(@"######## Error: %@", [error description]);                      
                   }
      ];
 }
@@ -165,12 +247,7 @@
 - (IBAction)zoneButtonPressed:(id)sender {
     NSString *url = objc_getAssociatedObject(sender, @"url");
     if (url != nil) {
-        UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-        UINavigationController* mainController = self.navigationController;
-        WebViewController* webController = (WebViewController*)[mainStoryboard instantiateViewControllerWithIdentifier:@"WebViewController"];
-        webController.url = url;
-        [mainController popToViewController:[[mainController viewControllers] objectAtIndex:1] animated:NO];
-        [mainController pushViewController:webController animated:NO];
+        [self loadUrl:url];
     }
 }
 
@@ -198,6 +275,71 @@
     [zoneButton setTitle:[NSString stringWithFormat:@"Текущая зона: %@", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]] forState:UIControlStateNormal];
     objc_setAssociatedObject(zoneButton, @"url", [[region.identifier componentsSeparatedByString:@"#"] objectAtIndex:1], OBJC_ASSOCIATION_COPY);
     [zoneButton setHidden:NO];*/
+}
+
+- (IBAction)homeButtonPressed:(id)sender {
+    [self resetToHomePage];
+}
+
+- (IBAction)beaconButtonPressed:(id)sender {
+    AppDelegate *app = ((AppDelegate*)[[UIApplication sharedApplication] delegate]);
+    if ([app.currentRegions count] > 0) {
+        [self showRegionUrl:(CLBeaconRegion*)[app.currentRegions lastObject]];
+    } else {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Внимание" message:@"Вы вне зоны действия маяков iBeacon" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction* ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 [alert dismissViewControllerAnimated:YES completion:nil];
+                             }];
+        [alert addAction:ok];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+}
+
+-(void) showRegionUrl:(CLBeaconRegion *)region {
+    AFSecurityPolicy *policy = [[AFSecurityPolicy alloc] init];
+    [policy setAllowInvalidCertificates:YES];
+    AFHTTPRequestOperationManager *operationManager = [AFHTTPRequestOperationManager manager];
+    [operationManager setSecurityPolicy:policy];
+    operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
+    operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
+    operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
+    
+    NSDictionary *requestDict = [NSDictionary dictionaryWithObjectsAndKeys:region.major, @"major", region.minor, @"minor", [region.proximityUUID.UUIDString lowercaseString], @"udid", 0, @"uid", nil];
+    
+    NSLog(@"request data: %@", requestDict);
+    [operationManager POST:GET_BEACON_SERVICE_URL
+                parameters: requestDict
+                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                       NSLog(@"response: %@", responseObject);
+                       NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
+                       NSString *message = [responseObject valueForKey:@"message"];
+                       NSDictionary *data = [responseObject valueForKey:@"data"];
+                       NSLog(@"message: %@", message);
+                       NSLog(@"data: %@", data);
+                       
+                       switch (code) {
+                           case 200: {
+                               if(![data isEqual:[NSNull null]]) {
+                                   NSString *url = [data objectForKey:@"enter_url"];
+                                   if (url != nil) {
+                                       [self loadUrl:url];
+                                   }
+                               }
+                           }
+                               break;
+                           default:
+                           {
+                               NSLog(@"######## Error response code: %ld", (long)code);
+                           }
+                               break;
+                       }
+                   }
+                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                       NSLog(@"######## Error: %@", [error description]);
+                   }
+     ];
 }
 
 @end

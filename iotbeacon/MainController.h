@@ -11,7 +11,7 @@
 #import "IBZone.h"
 #import <CoreLocation/CLBeaconRegion.h>
 
-@interface MainController : UIViewController <UIWebViewDelegate>
+@interface MainController : UIViewController <UIWebViewDelegate, UIAlertViewDelegate>
 
 @property (strong) NSString* consumerId;
 @property (strong) NSArray* zones;
@@ -19,6 +19,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *zoneButton;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loadingIndicator;
+@property (weak, nonatomic) IBOutlet UIView *buttonsView;
 
 - (IBAction)settingButtonPressed:(id)sender;
 - (IBAction)registryButtonPressed:(id)sender;
@@ -28,4 +29,9 @@
 - (void)enteringZone:(id<IBZone>)zone;
 - (void)leavingRegion:(CLBeaconRegion*)region;
 - (void)enteringRegion:(CLBeaconRegion*)region;
+- (IBAction)homeButtonPressed:(id)sender;
+- (IBAction)beaconButtonPressed:(id)sender;
+- (void)loadUrl:(NSString*)url;
+- (void)resetToHomePage;
+-(void) showRegionUrl:(CLBeaconRegion *)region;
 @end

@@ -26,10 +26,29 @@
 		D024535B1CABADB7007B0A1D /* UIRefreshControl+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = D02453491CABADB7007B0A1D /* UIRefreshControl+AFNetworking.m */; };
 		D024535C1CABADB7007B0A1D /* UIWebView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = D024534B1CABADB7007B0A1D /* UIWebView+AFNetworking.m */; };
 		D025E7B01C84726A002CE743 /* BeaconSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = D025E7AF1C84726A002CE743 /* BeaconSettingsController.m */; };
+		D03498121CDB3F0F008FAF04 /* beacon.png in Resources */ = {isa = PBXBuildFile; fileRef = D03498101CDB3F0F008FAF04 /* beacon.png */; };
+		D03498131CDB3F0F008FAF04 /* home.png in Resources */ = {isa = PBXBuildFile; fileRef = D03498111CDB3F0F008FAF04 /* home.png */; };
+		D03498151CDB6431008FAF04 /* beacon_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = D03498141CDB6431008FAF04 /* beacon_icon.png */; };
 		D0565D1E1CCA3834000CC3BB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D0565D1D1CCA3834000CC3BB /* GoogleService-Info.plist */; };
+		D0565D321CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D201CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png */; };
+		D0565D331CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D221CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png */; };
+		D0565D341CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Apps.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D231CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Apps.png */; };
+		D0565D351CD09DB1000CC3BB /* BIShop_iPhone(4-6)_settings.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D241CD09DB1000CC3BB /* BIShop_iPhone(4-6)_settings.png */; };
+		D0565D361CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Spotlight.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D251CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Spotlight.png */; };
+		D0565D371CD09DB1000CC3BB /* BIShop_iPhone6+_Apps.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D261CD09DB1000CC3BB /* BIShop_iPhone6+_Apps.png */; };
+		D0565D381CD09DB1000CC3BB /* BIShop_iPhone6+_settings.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D271CD09DB1000CC3BB /* BIShop_iPhone6+_settings.png */; };
+		D0565D391CD09DB1000CC3BB /* BIShop_iPhone6+_Spotlight.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D281CD09DB1000CC3BB /* BIShop_iPhone6+_Spotlight.png */; };
+		D0565D3A1CD09DB1000CC3BB /* BIShop_old_iPad_Apps.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D291CD09DB1000CC3BB /* BIShop_old_iPad_Apps.png */; };
+		D0565D3B1CD09DB1000CC3BB /* BIShop_old_iPad_settings.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2A1CD09DB1000CC3BB /* BIShop_old_iPad_settings.png */; };
+		D0565D3C1CD09DB1000CC3BB /* BIShop_old_iPad_Spotlight.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2B1CD09DB1000CC3BB /* BIShop_old_iPad_Spotlight.png */; };
+		D0565D3D1CD09DB1000CC3BB /* BIShop_old_iPhone_Apps.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2C1CD09DB1000CC3BB /* BIShop_old_iPhone_Apps.png */; };
+		D0565D3E1CD09DB1000CC3BB /* BIShop_old_iPhone_settings.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2D1CD09DB1000CC3BB /* BIShop_old_iPhone_settings.png */; };
+		D0565D3F1CD09DB1000CC3BB /* BIShop_old_iPhone_Spotlight.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2E1CD09DB1000CC3BB /* BIShop_old_iPhone_Spotlight.png */; };
+		D0565D401CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2F1CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png */; };
+		D0565D411CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D301CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png */; };
+		D0565D421CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D311CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png */; };
 		D07E30101C46A07E001EA160 /* RegistryController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E300F1C46A07E001EA160 /* RegistryController.m */; };
 		D07E30131C47C9BB001EA160 /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E30121C47C9BB001EA160 /* MainController.m */; };
-		D07E30161C47CE54001EA160 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E30151C47CE54001EA160 /* WebViewController.m */; };
 		D07E30191C47D1C4001EA160 /* UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E30181C47D1C4001EA160 /* UserData.m */; };
 		D07E301F1C4D1C0A001EA160 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E301E1C4D1C0A001EA160 /* SettingsController.m */; };
 		D07E30221C4D2C9A001EA160 /* DismissSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E30211C4D2C9A001EA160 /* DismissSegue.m */; };
@@ -41,6 +60,7 @@
 		D09616EA1C2C1B350004C4F9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D09616E81C2C1B350004C4F9 /* LaunchScreen.storyboard */; };
 		D09617101C32B2B20004C4F9 /* beacons.json in Resources */ = {isa = PBXBuildFile; fileRef = D096170F1C32B2B20004C4F9 /* beacons.json */; };
 		D09617121C32B8910004C4F9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09617111C32B8910004C4F9 /* CoreLocation.framework */; };
+		D0D701401CE1CF8900D946E5 /* buttons.png in Resources */ = {isa = PBXBuildFile; fileRef = D0D7013F1CE1CF8900D946E5 /* buttons.png */; };
 		D0F6F2641C73371800B2036E /* ZoneManagerConsumer.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F6F2631C73371800B2036E /* ZoneManagerConsumer.m */; };
 		D0F6F2741C73372F00B2036E /* libAPI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D0F6F2731C73372F00B2036E /* libAPI.a */; };
 /* End PBXBuildFile section */
@@ -86,13 +106,31 @@
 		D024534B1CABADB7007B0A1D /* UIWebView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+AFNetworking.m"; sourceTree = "<group>"; };
 		D025E7AE1C84726A002CE743 /* BeaconSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BeaconSettingsController.h; sourceTree = "<group>"; };
 		D025E7AF1C84726A002CE743 /* BeaconSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BeaconSettingsController.m; sourceTree = "<group>"; };
+		D03498101CDB3F0F008FAF04 /* beacon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = beacon.png; path = images/beacon.png; sourceTree = "<group>"; };
+		D03498111CDB3F0F008FAF04 /* home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = home.png; path = images/home.png; sourceTree = "<group>"; };
+		D03498141CDB6431008FAF04 /* beacon_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = beacon_icon.png; path = images/beacon_icon.png; sourceTree = "<group>"; };
 		D0565D1D1CCA3834000CC3BB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D0565D201CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BIShop_icon_for_AppStore.png; path = images/BIShop_icon_for_AppStore.png; sourceTree = "<group>"; };
+		D0565D221CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_icon_for_AppStore.png; sourceTree = "<group>"; };
+		D0565D231CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Apps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BIShop_iPhone(4-6)_Apps.png"; sourceTree = "<group>"; };
+		D0565D241CD09DB1000CC3BB /* BIShop_iPhone(4-6)_settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BIShop_iPhone(4-6)_settings.png"; sourceTree = "<group>"; };
+		D0565D251CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Spotlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BIShop_iPhone(4-6)_Spotlight.png"; sourceTree = "<group>"; };
+		D0565D261CD09DB1000CC3BB /* BIShop_iPhone6+_Apps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BIShop_iPhone6+_Apps.png"; sourceTree = "<group>"; };
+		D0565D271CD09DB1000CC3BB /* BIShop_iPhone6+_settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BIShop_iPhone6+_settings.png"; sourceTree = "<group>"; };
+		D0565D281CD09DB1000CC3BB /* BIShop_iPhone6+_Spotlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "BIShop_iPhone6+_Spotlight.png"; sourceTree = "<group>"; };
+		D0565D291CD09DB1000CC3BB /* BIShop_old_iPad_Apps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_old_iPad_Apps.png; sourceTree = "<group>"; };
+		D0565D2A1CD09DB1000CC3BB /* BIShop_old_iPad_settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_old_iPad_settings.png; sourceTree = "<group>"; };
+		D0565D2B1CD09DB1000CC3BB /* BIShop_old_iPad_Spotlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_old_iPad_Spotlight.png; sourceTree = "<group>"; };
+		D0565D2C1CD09DB1000CC3BB /* BIShop_old_iPhone_Apps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_old_iPhone_Apps.png; sourceTree = "<group>"; };
+		D0565D2D1CD09DB1000CC3BB /* BIShop_old_iPhone_settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_old_iPhone_settings.png; sourceTree = "<group>"; };
+		D0565D2E1CD09DB1000CC3BB /* BIShop_old_iPhone_Spotlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_old_iPhone_Spotlight.png; sourceTree = "<group>"; };
+		D0565D2F1CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_Retina_iPad_Apps.png; sourceTree = "<group>"; };
+		D0565D301CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_Retina_iPad_settings.png; sourceTree = "<group>"; };
+		D0565D311CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_Retina_iPad_Spotlight.png; sourceTree = "<group>"; };
 		D07E300E1C46A07E001EA160 /* RegistryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistryController.h; sourceTree = "<group>"; };
 		D07E300F1C46A07E001EA160 /* RegistryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistryController.m; sourceTree = "<group>"; };
 		D07E30111C47C9BB001EA160 /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		D07E30121C47C9BB001EA160 /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
-		D07E30141C47CE54001EA160 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
-		D07E30151C47CE54001EA160 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
 		D07E30171C47D1C4001EA160 /* UserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserData.h; sourceTree = "<group>"; };
 		D07E30181C47D1C4001EA160 /* UserData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserData.m; sourceTree = "<group>"; };
 		D07E301D1C4D1C0A001EA160 /* SettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsController.h; sourceTree = "<group>"; };
@@ -100,7 +138,7 @@
 		D07E30201C4D2C9A001EA160 /* DismissSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DismissSegue.h; sourceTree = "<group>"; };
 		D07E30211C4D2C9A001EA160 /* DismissSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DismissSegue.m; sourceTree = "<group>"; };
 		D07E30231C4D317E001EA160 /* settings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = settings.plist; sourceTree = "<group>"; };
-		D09616D71C2C1B340004C4F9 /* iotbeacon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iotbeacon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D09616D71C2C1B340004C4F9 /* BIShop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BIShop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D09616DB1C2C1B340004C4F9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D09616DD1C2C1B340004C4F9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D09616DE1C2C1B340004C4F9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -110,6 +148,7 @@
 		D09616EB1C2C1B350004C4F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D096170F1C32B2B20004C4F9 /* beacons.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = beacons.json; sourceTree = "<group>"; };
 		D09617111C32B8910004C4F9 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		D0D7013F1CE1CF8900D946E5 /* buttons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = buttons.png; path = images/buttons.png; sourceTree = "<group>"; };
 		D0F6F2621C73371800B2036E /* ZoneManagerConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZoneManagerConsumer.h; sourceTree = "<group>"; };
 		D0F6F2631C73371800B2036E /* ZoneManagerConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZoneManagerConsumer.m; sourceTree = "<group>"; };
 		D0F6F2681C73372F00B2036E /* IBApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IBApi.h; sourceTree = "<group>"; };
@@ -226,6 +265,43 @@
 			path = "UIKit+AFNetworking";
 			sourceTree = "<group>";
 		};
+		D0565D1F1CD09D93000CC3BB /* images */ = {
+			isa = PBXGroup;
+			children = (
+				D0D7013F1CE1CF8900D946E5 /* buttons.png */,
+				D03498141CDB6431008FAF04 /* beacon_icon.png */,
+				D03498101CDB3F0F008FAF04 /* beacon.png */,
+				D03498111CDB3F0F008FAF04 /* home.png */,
+				D0565D201CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png */,
+				D0565D211CD09DB1000CC3BB /* icons */,
+			);
+			name = images;
+			sourceTree = "<group>";
+		};
+		D0565D211CD09DB1000CC3BB /* icons */ = {
+			isa = PBXGroup;
+			children = (
+				D0565D221CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png */,
+				D0565D231CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Apps.png */,
+				D0565D241CD09DB1000CC3BB /* BIShop_iPhone(4-6)_settings.png */,
+				D0565D251CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Spotlight.png */,
+				D0565D261CD09DB1000CC3BB /* BIShop_iPhone6+_Apps.png */,
+				D0565D271CD09DB1000CC3BB /* BIShop_iPhone6+_settings.png */,
+				D0565D281CD09DB1000CC3BB /* BIShop_iPhone6+_Spotlight.png */,
+				D0565D291CD09DB1000CC3BB /* BIShop_old_iPad_Apps.png */,
+				D0565D2A1CD09DB1000CC3BB /* BIShop_old_iPad_settings.png */,
+				D0565D2B1CD09DB1000CC3BB /* BIShop_old_iPad_Spotlight.png */,
+				D0565D2C1CD09DB1000CC3BB /* BIShop_old_iPhone_Apps.png */,
+				D0565D2D1CD09DB1000CC3BB /* BIShop_old_iPhone_settings.png */,
+				D0565D2E1CD09DB1000CC3BB /* BIShop_old_iPhone_Spotlight.png */,
+				D0565D2F1CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png */,
+				D0565D301CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png */,
+				D0565D311CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png */,
+			);
+			name = icons;
+			path = images/icons;
+			sourceTree = "<group>";
+		};
 		D09616CE1C2C1B340004C4F9 = {
 			isa = PBXGroup;
 			children = (
@@ -241,7 +317,7 @@
 		D09616D81C2C1B340004C4F9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D09616D71C2C1B340004C4F9 /* iotbeacon.app */,
+				D09616D71C2C1B340004C4F9 /* BIShop.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -249,6 +325,7 @@
 		D09616D91C2C1B340004C4F9 /* iotbeacon */ = {
 			isa = PBXGroup;
 			children = (
+				D0565D1F1CD09D93000CC3BB /* images */,
 				D024531D1CAAE6FE007B0A1D /* net */,
 				D0F6F2651C73372F00B2036E /* ibecom */,
 				D0F6F2621C73371800B2036E /* ZoneManagerConsumer.h */,
@@ -256,8 +333,6 @@
 				D096170F1C32B2B20004C4F9 /* beacons.json */,
 				D09616DD1C2C1B340004C4F9 /* AppDelegate.h */,
 				D09616DE1C2C1B340004C4F9 /* AppDelegate.m */,
-				D07E30141C47CE54001EA160 /* WebViewController.h */,
-				D07E30151C47CE54001EA160 /* WebViewController.m */,
 				D07E300E1C46A07E001EA160 /* RegistryController.h */,
 				D07E300F1C46A07E001EA160 /* RegistryController.m */,
 				D07E30111C47C9BB001EA160 /* MainController.h */,
@@ -326,9 +401,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D09616D61C2C1B340004C4F9 /* iotbeacon */ = {
+		D09616D61C2C1B340004C4F9 /* BIShop */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D09616EE1C2C1B350004C4F9 /* Build configuration list for PBXNativeTarget "iotbeacon" */;
+			buildConfigurationList = D09616EE1C2C1B350004C4F9 /* Build configuration list for PBXNativeTarget "BIShop" */;
 			buildPhases = (
 				FDE78DD89EC6408CDDE60E9B /* Check Pods Manifest.lock */,
 				D09616D31C2C1B340004C4F9 /* Sources */,
@@ -341,9 +416,9 @@
 			);
 			dependencies = (
 			);
-			name = iotbeacon;
+			name = BIShop;
 			productName = iotbeacon;
-			productReference = D09616D71C2C1B340004C4F9 /* iotbeacon.app */;
+			productReference = D09616D71C2C1B340004C4F9 /* BIShop.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -369,7 +444,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D09616D21C2C1B340004C4F9 /* Build configuration list for PBXProject "iotbeacon" */;
+			buildConfigurationList = D09616D21C2C1B340004C4F9 /* Build configuration list for PBXProject "BIShop" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -382,7 +457,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D09616D61C2C1B340004C4F9 /* iotbeacon */,
+				D09616D61C2C1B340004C4F9 /* BIShop */,
 			);
 		};
 /* End PBXProject section */
@@ -396,8 +471,29 @@
 				D09616E71C2C1B350004C4F9 /* Assets.xcassets in Resources */,
 				D09616E51C2C1B350004C4F9 /* Main.storyboard in Resources */,
 				D09617101C32B2B20004C4F9 /* beacons.json in Resources */,
+				D0565D401CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png in Resources */,
+				D0565D421CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png in Resources */,
+				D0565D3F1CD09DB1000CC3BB /* BIShop_old_iPhone_Spotlight.png in Resources */,
+				D0565D321CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png in Resources */,
+				D0565D381CD09DB1000CC3BB /* BIShop_iPhone6+_settings.png in Resources */,
+				D0565D361CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Spotlight.png in Resources */,
+				D03498151CDB6431008FAF04 /* beacon_icon.png in Resources */,
+				D0565D341CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Apps.png in Resources */,
 				D07E30241C4D317E001EA160 /* settings.plist in Resources */,
+				D0565D391CD09DB1000CC3BB /* BIShop_iPhone6+_Spotlight.png in Resources */,
+				D0565D351CD09DB1000CC3BB /* BIShop_iPhone(4-6)_settings.png in Resources */,
 				D0565D1E1CCA3834000CC3BB /* GoogleService-Info.plist in Resources */,
+				D0565D3C1CD09DB1000CC3BB /* BIShop_old_iPad_Spotlight.png in Resources */,
+				D03498131CDB3F0F008FAF04 /* home.png in Resources */,
+				D0565D3D1CD09DB1000CC3BB /* BIShop_old_iPhone_Apps.png in Resources */,
+				D0565D411CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png in Resources */,
+				D0565D371CD09DB1000CC3BB /* BIShop_iPhone6+_Apps.png in Resources */,
+				D0565D331CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png in Resources */,
+				D0565D3A1CD09DB1000CC3BB /* BIShop_old_iPad_Apps.png in Resources */,
+				D0D701401CE1CF8900D946E5 /* buttons.png in Resources */,
+				D03498121CDB3F0F008FAF04 /* beacon.png in Resources */,
+				D0565D3B1CD09DB1000CC3BB /* BIShop_old_iPad_settings.png in Resources */,
+				D0565D3E1CD09DB1000CC3BB /* BIShop_old_iPhone_settings.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,7 +563,6 @@
 				D07E30221C4D2C9A001EA160 /* DismissSegue.m in Sources */,
 				D02453511CABADB7007B0A1D /* AFURLConnectionOperation.m in Sources */,
 				D024534D1CABADB7007B0A1D /* AFHTTPRequestOperationManager.m in Sources */,
-				D07E30161C47CE54001EA160 /* WebViewController.m in Sources */,
 				D024534F1CABADB7007B0A1D /* AFNetworkReachabilityManager.m in Sources */,
 				D07E30191C47D1C4001EA160 /* UserData.m in Sources */,
 				D07E301F1C4D1C0A001EA160 /* SettingsController.m in Sources */,
@@ -599,7 +694,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Bobrov Alexander (WG958444EW)";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iotbeacon/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -608,10 +703,10 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nn.smartcity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BIShop;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Debug;
 		};
@@ -624,7 +719,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Bobrov Alexander (2FBH9DEYTV)";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iotbeacon/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -633,17 +728,17 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nn.smartcity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BIShop;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D09616D21C2C1B340004C4F9 /* Build configuration list for PBXProject "iotbeacon" */ = {
+		D09616D21C2C1B340004C4F9 /* Build configuration list for PBXProject "BIShop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D09616EC1C2C1B350004C4F9 /* Debug */,
@@ -652,7 +747,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D09616EE1C2C1B350004C4F9 /* Build configuration list for PBXNativeTarget "iotbeacon" */ = {
+		D09616EE1C2C1B350004C4F9 /* Build configuration list for PBXNativeTarget "BIShop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D09616EF1C2C1B350004C4F9 /* Debug */,
