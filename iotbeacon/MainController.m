@@ -12,8 +12,10 @@
 #import "ZoneManagerConsumer.h"
 #import "SettingsController.h"
 #import "AFHTTPRequestOperationManager.h"
+#import "Reachability.h"
 
 @interface MainController ()
+@property (strong, nonatomic) UIAlertView *alert;
 @end
 
 @implementation MainController
@@ -22,6 +24,7 @@
 @synthesize webView;
 @synthesize loadingIndicator;
 @synthesize buttonsView;
+@synthesize alert;
 
 
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
@@ -34,8 +37,8 @@
     [super viewDidLoad];        
     
     [zoneButton setHidden:YES];
-    
-    [self resetToHomePage];
+    self.alert = nil;
+    [self checkConnection:nil];
 }
 
 - (void)loadUrl:(NSString*)url {
@@ -46,6 +49,27 @@
         [webView setDelegate:self];
         [webView loadRequest:requestObj];
         [loadingIndicator startAnimating];
+    }
+}
+
+- (void)checkConnection:(NSString*)url
+{
+    //Reachability* reachability = [Reachability reachabilityWithHostName:MAIN_PAGE_URL];
+    Reachability* reachability = [Reachability reachabilityForInternetConnection];
+    NetworkStatus remoteHostStatus = [reachability currentReachabilityStatus];
+    if (remoteHostStatus == NotReachable) {
+        if (alert == nil) {
+            [loadingIndicator stopAnimating];
+            [self hideButtons];
+            self.alert = [[UIAlertView alloc] initWithTitle:@"" message:@"Проверьте соединение с интернетом. Повторить попытку." delegate:self cancelButtonTitle:@"ok" otherButtonTitles:@"отмена", nil];
+            [alert show];
+        }
+    } else {
+        if (url != nil) {
+            [self loadUrl:url];
+        } else {
+            [self resetToHomePage];
+        }
     }
 }
 
@@ -75,6 +99,8 @@
         [buttonsView addGestureRecognizer:recognizer];
     }
     buttonsView.userInteractionEnabled = YES;
+    
+
 }
 
 - (void)buttonsViewPressed {
@@ -126,10 +152,6 @@
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-    [loadingIndicator stopAnimating];
-    [self hideButtons];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Ошибка" message:@"Проверьте соединение с интернетом. Повторить попытку." delegate:self cancelButtonTitle:@"ok" otherButtonTitles:@"отмена", nil];
-    [alert show];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -166,8 +188,9 @@
 
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex == 0) {
-        [self resetToHomePage];
+        [self checkConnection:nil];
     }
+    self.alert = nil;
 }
 
 - (void)loadNewData:(NSString*)pathToData forVersion:(NSInteger)version {
@@ -247,7 +270,7 @@
 - (IBAction)zoneButtonPressed:(id)sender {
     NSString *url = objc_getAssociatedObject(sender, @"url");
     if (url != nil) {
-        [self loadUrl:url];
+        [self checkConnection:url];
     }
 }
 
@@ -278,7 +301,7 @@
 }
 
 - (IBAction)homeButtonPressed:(id)sender {
-    [self resetToHomePage];
+    [self checkConnection:nil];
 }
 
 - (IBAction)beaconButtonPressed:(id)sender {
@@ -324,7 +347,7 @@
                                if(![data isEqual:[NSNull null]]) {
                                    NSString *url = [data objectForKey:@"enter_url"];
                                    if (url != nil) {
-                                       [self loadUrl:url];
+                                       [self checkConnection:url];
                                    }
                                }
                            }
@@ -338,6 +361,8 @@
                    }
                    failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                        NSLog(@"######## Error: %@", [error description]);
+                       
+                       
                    }
      ];
 }

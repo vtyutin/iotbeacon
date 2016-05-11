@@ -17,12 +17,12 @@
 #import <CoreLocation/CLBeaconRegion.h>
 #import "AFHTTPRequestOperationManager.h"
 #import <Google/CloudMessaging.h>
+#import "S2MNotificationHelper.h"
 
 @interface AppDelegate ()<CBCentralManagerDelegate>
 @property (strong, nonatomic)CBCentralManager *bluetoothManager;
 @property (strong, nonatomic) CLLocationManager *manager;
 @property (strong, nonatomic) UserData *user;
-@property (strong, nonatomic) NSMutableArray *notifications;
 
 @property(nonatomic, strong) void (^registrationHandler)
 (NSString *registrationToken, NSError *error);
@@ -42,7 +42,6 @@
 @synthesize bluetoothManager;
 @synthesize user;
 @synthesize uuid;
-@synthesize notifications;
 
 BOOL isApplicationActive = NO;
 #define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
@@ -59,8 +58,8 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     UILocalNotification* localNotification = [[UILocalNotification alloc] init];
     localNotification.applicationIconBadgeNumber = 0;
     
-    self.notifications = [NSMutableArray array];
     self.uuid = nil;
+    self.connectedToGCM = false;
 #if TARGET_IPHONE_SIMULATOR
     self.uuid = [[NSUUID alloc] initWithUUIDString:@"SIMULATOR"];
 #else
@@ -75,11 +74,8 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
     [mainController setNavigationBarHidden:YES];
         [mainController pushViewController:[mainStoryboard instantiateViewControllerWithIdentifier:@"MainController"] animated:NO];
-                                            //instantiateViewControllerWithIdentifier:@"RegistryController"] animated:NO];
     
     self.bluetoothManager = [[CBCentralManager alloc] init];
-    
-    NSLog(@"bluetooth state: %d", bluetoothManager.state);
     
     self.bluetoothManager.delegate = self;
     
@@ -94,12 +90,15 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
     
-    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:10];
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     
     self.currentRegions = [NSMutableArray array];
     
     self.manager = [[CLLocationManager alloc] init];
-    manager.allowsBackgroundLocationUpdates = YES;
+    [manager setPausesLocationUpdatesAutomatically:NO];
+    if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_4) {
+        manager.allowsBackgroundLocationUpdates = YES;
+    }
     [manager setDelegate:self];
     
     NSString* arrayPath;
@@ -293,21 +292,23 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     }
     
     // Connect to the GCM server to receive non-APNS notifications
-    [[GCMService sharedInstance] connectWithHandler:^(NSError *error) {
-        if (error) {
-            NSLog(@"Could not connect to GCM: %@", error.localizedDescription);
-        } else {
-            _connectedToGCM = true;
-            NSLog(@"Connected to GCM");
-            // [START_EXCLUDE]
-            NSString *const topic = [NSString stringWithFormat:@"/topics/%@", [uuid UUIDString]];
-            [self subscribeToTopic:SubscriptionTopicAll];
-            if (uuid != nil) {
-                [self subscribeToTopic:topic];
+    if (_connectedToGCM == false) {
+        [[GCMService sharedInstance] connectWithHandler:^(NSError *error) {
+            if (error) {
+                NSLog(@"Could not connect to GCM: %@", error.localizedDescription);
+            } else {
+                _connectedToGCM = true;
+                NSLog(@"Connected to GCM");
+                // [START_EXCLUDE]
+                NSString *const topic = [NSString stringWithFormat:@"/topics/%@", [uuid UUIDString]];
+                [self subscribeToTopic:SubscriptionTopicAll];
+                if (uuid != nil) {
+                    [self subscribeToTopic:topic];
+                }
+                // [END_EXCLUDE]
             }
-            // [END_EXCLUDE]
-        }
-    }];
+        }];
+    }
     
     if (TEST_ENTERING_ZONE == 1) {
         [NSTimer scheduledTimerWithTimeInterval:15 target:self selector:@selector(sendTestNotification) userInfo:nil repeats:YES];
@@ -379,7 +380,6 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
         MainController *controller = (MainController*)[[mainController viewControllers] firstObject];
         [controller loadUrl:url];
     }
-    //[[UIApplication sharedApplication] cancelLocalNotification:notification];
 }
 
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
@@ -412,51 +412,21 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                        NSInteger code = [[responseObject valueForKey:@"result"] integerValue];
                        NSString *message = [responseObject valueForKey:@"message"];
                        NSDictionary *data = [responseObject valueForKey:@"data"];
-                       NSLog(@"code: %d", code);
                        NSLog(@"message: %@", message);
                        NSLog(@"data: %@", data);
                        
                        switch (code) {
                            case 200: {
                                if(![data isEqual:[NSNull null]]) {
-                                   UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-                                   localNotification.alertBody = nil;
                                    NSString *message = [data objectForKey:@"leaving_message"];
-                                   if ((message != nil) && ([message length] > 0)) {
-                                       localNotification.alertBody = message;
-                                   }
-                                   
                                    NSString *url = [data objectForKey:@"leaving_url"];
-                                   if (url != nil) {
-                                       NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:url, @"url", @"LEAVING", @"type", nil];
-                                       localNotification.userInfo = userInfo;
-                                       localNotification.soundName = UILocalNotificationDefaultSoundName;
-                                       localNotification.applicationIconBadgeNumber = 0;
-                                       if ((localNotification.alertBody != nil) && (url != nil)) {
-                                           NSMutableArray *toRemove = [NSMutableArray array];
-                                           for(UILocalNotification *notification in notifications) {
-                                               NSString *type = [[notification userInfo] valueForKey:@"type"];
-                                               if ((type != nil) && ([type compare:@"LEAVING"] == NSOrderedSame)) {
-                                                   [[UIApplication sharedApplication] cancelLocalNotification:notification];
-                                                   [toRemove addObject:notification];
-                                               }
-                                           }
-                                           for (UILocalNotification *notification in toRemove) {
-                                               [notifications removeObject:notification];
-                                           }
-                                           //[[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
-                                           
-                                           [localNotification setFireDate:[NSDate date]];
-                                           [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-                                           [notifications addObject:localNotification];
-                                       }
-                                   }
+                                   [self sendLocalNotificationWithMessage:message andUrl:url];
                                }
                            }
                            break;
                            default:
                            {
-                               NSLog(@"######## Error response code: %d", code);
+                               NSLog(@"######## Error response code: %ld", (long)code);
                            }
                            break;
                        }
@@ -493,42 +463,16 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                        switch (code) {
                            case 200: {
                                if(![data isEqual:[NSNull null]]) {
-                                   UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-                                   localNotification.alertBody = nil;
                                    NSString *message = [data objectForKey:@"enter_message"];
                                    NSLog(@"enter: %@", message);
-                                   
-                                   if ((message != nil) && ([message length] > 0)) {
-                                       localNotification.alertBody = message;
-                                   }
                                    NSString *url = [data objectForKey:@"enter_url"];
-                                   localNotification.soundName = UILocalNotificationDefaultSoundName;
-                                   localNotification.applicationIconBadgeNumber = 0;
-                                   if ((localNotification.alertBody != nil) && (url != nil)) {
-                                       NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:url, @"url", @"ENTERING", @"type", nil];
-                                       localNotification.userInfo = userInfo;
-                                       NSMutableArray *toRemove = [NSMutableArray array];
-                                       for(UILocalNotification *notification in notifications) {
-                                           NSString *type = [[notification userInfo] valueForKey:@"type"];
-                                           if ((type != nil) && ([type compare:@"ENTERING"] == NSOrderedSame)) {
-                                               [[UIApplication sharedApplication] cancelLocalNotification:notification];
-                                               [toRemove addObject:notification];
-                                           }
-                                       }
-                                       for (UILocalNotification *notification in toRemove) {
-                                           [notifications removeObject:notification];
-                                       }
-                                       //[[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
-                                       [localNotification setFireDate:[NSDate date]];
-                                       [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-                                       [notifications addObject:localNotification];
-                                   }
+                                   [self sendLocalNotificationWithMessage:message andUrl:url];
                                }
                            }
                            break;
                            default:
                            {
-                                NSLog(@"######## Error response code: %d", code);
+                                NSLog(@"######## Error response code: %ld", (long)code);
                            }
                            break;
                        }
@@ -664,7 +608,7 @@ didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // token to enable reception of notifications
     [[GGLInstanceID sharedInstance] startWithConfig:instanceIDConfig];
     _registrationOptions = @{kGGLInstanceIDRegisterAPNSOption:deviceToken,
-                             kGGLInstanceIDAPNSServerTypeSandboxOption:@YES};
+                             kGGLInstanceIDAPNSServerTypeSandboxOption:@NO};
     [[GGLInstanceID sharedInstance] tokenWithAuthorizedEntity:_gcmSenderID
                                                         scope:kGGLInstanceIDScopeGCM
                                                       options:_registrationOptions
@@ -710,28 +654,31 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler {
         NSString *message = [userInfo valueForKey:@"message"];
         NSString *url = [userInfo valueForKey:@"url"];        
         if ((url != nil) && (message != nil)) {
-            UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-            localNotification.alertBody = nil;
-            localNotification.alertBody = message;
-            NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:url, @"url", @"SERVER", @"type", nil];
-            localNotification.userInfo = info;
-            NSMutableArray *toRemove = [NSMutableArray array];
-            for(UILocalNotification *notification in notifications) {
-                NSString *type = [[notification userInfo] valueForKey:@"type"];
-                if ((type != nil) && ([type compare:@"SERVER"] == NSOrderedSame)) {
-                    [[UIApplication sharedApplication] cancelLocalNotification:notification];
-                    [toRemove addObject:notification];
-                }
-            }
-            for (UILocalNotification *notification in toRemove) {
-                [notifications removeObject:notification];
-            }
-            localNotification.soundName = UILocalNotificationDefaultSoundName;
-            localNotification.applicationIconBadgeNumber = 0;
-            [localNotification setFireDate:[NSDate date]];
-            [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-            [notifications addObject:localNotification];
+            [self sendLocalNotificationWithMessage:message andUrl:url];
         }
+    }
+}
+
+-(void)sendLocalNotificationWithMessage:(NSString*)message andUrl:(NSString*)url {
+    if ((url != nil) && (message != nil)) {
+        [S2MNotificationHelper removeAllNotifications];
+        [NSThread sleepForTimeInterval:1];
+        NSString *keyForCache = [@([[NSDate date] timeIntervalSince1970]) stringValue];
+        UILocalNotification *notification = [UILocalNotification new];
+        notification.alertAction = @"Let's Check";
+        notification.alertBody = message;
+        notification.soundName = UILocalNotificationDefaultSoundName;
+        notification.timeZone = [NSTimeZone defaultTimeZone];
+        notification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
+        [notification setS2mKey:keyForCache];
+        [S2MNotificationHelper showNotification:notification];
+        /*
+        UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+        localNotification.alertBody = message;
+        localNotification.soundName = UILocalNotificationDefaultSoundName;
+        localNotification.applicationIconBadgeNumber = 0;
+        [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+         */
     }
 }
 
