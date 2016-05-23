@@ -13,6 +13,12 @@
 
 @interface MainController : UIViewController <UIWebViewDelegate, UIAlertViewDelegate>
 
+#define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon_pass/version.php"
+#define MAIN_PAGE_URL @"http://uliyneron.no-ip.org/ibeacon_pass"
+#define GET_BEACON_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon_pass/ibeacon.php"
+#define LOGIN @"app";
+#define PASSWORD @"51rUQHeVWk";
+
 @property (strong) NSString* consumerId;
 @property (strong) NSArray* zones;
 @property (assign) IB2ZoneSortRule sortRule;

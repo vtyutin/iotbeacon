@@ -26,11 +26,6 @@
 @synthesize buttonsView;
 @synthesize alert;
 
-
-#define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
-//#define MAIN_PAGE_URL @"http://smarthouse.gdknn.ru/nnbis/easyshop/appinterface.php"
-#define MAIN_PAGE_URL @"http://uliyneron.no-ip.org/ibeacon"
-#define GET_BEACON_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/ibeacon.php"
 #define BUTTONS_VIEW_OFFSET 15
 
 - (void)viewDidLoad {
@@ -44,11 +39,11 @@
 - (void)loadUrl:(NSString*)url {
     if (url != nil) {
         NSURL *nsurl = [NSURL URLWithString:url];
-        NSURLRequest *requestObj = [NSURLRequest requestWithURL:nsurl];
+        NSMutableURLRequest *requestObj = [NSMutableURLRequest requestWithURL:nsurl];
+        [requestObj setTimeoutInterval:30];
         [webView setScalesPageToFit:YES];
         [webView setDelegate:self];
         [webView loadRequest:requestObj];
-        [loadingIndicator startAnimating];
     }
 }
 
@@ -75,12 +70,22 @@
 
 - (void)resetToHomePage {
     NSUUID *uuid = ((AppDelegate*)[[UIApplication sharedApplication] delegate]).uuid;
-    NSURL *nsurl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?uid=%@", MAIN_PAGE_URL, [uuid UUIDString]]];
-    NSURLRequest *requestObj = [NSURLRequest requestWithURL:nsurl];
+    NSString *username = LOGIN;
+    NSString *password = PASSWORD;
+    NSString *postString = [NSString stringWithFormat:@"%@:%@",username, password];
+    NSString *authString = [NSString stringWithFormat: @"Basic %@", postString];
+    NSString *url = [NSString stringWithFormat:@"%@?uid=%@", MAIN_PAGE_URL, [uuid UUIDString]];
+    NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url]];
+    [mutableRequest setValue:authString forHTTPHeaderField:@"Authorization"];
+    NSURLCredential *newCredential = [NSURLCredential credentialWithUser:username password:password persistence:NSURLCredentialPersistenceForSession];
+    NSURLCredentialStorage *credentialStorage = [NSURLCredentialStorage sharedCredentialStorage];
+    [credentialStorage setCredential:newCredential forProtectionSpace:[[NSURLProtectionSpace alloc] initWithHost:@"uliyneron.no-ip.org" port:80 protocol:@"http" realm:@"NNBIS Server login" authenticationMethod:NSURLAuthenticationMethodHTTPBasic]];
+    
+    [mutableRequest setTimeoutInterval:30];
     [webView setScalesPageToFit:YES];
     [webView setDelegate:self];
-    [webView loadRequest:requestObj];
-    [loadingIndicator startAnimating];
+    [webView loadRequest:mutableRequest];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -143,6 +148,11 @@
     buttonsView.userInteractionEnabled = YES;
 }
 
+-(void)webViewDidStartLoad:(UIWebView *)webView {
+    [loadingIndicator startAnimating];
+    [self hideButtons];
+}
+
 - (void)webViewDidFinishLoad:(UIWebView *)wView
 {
     if (!wView.isLoading) {
@@ -152,6 +162,8 @@
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    [loadingIndicator stopAnimating];
+    [self hideButtons];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -167,6 +179,9 @@
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     [operationManager GET:GET_VERSION_SERVICE_URL
                parameters: nil
                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -203,6 +218,9 @@
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     [operationManager GET:pathToData
                parameters: nil
                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -328,6 +346,9 @@
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     
     NSDictionary *requestDict = [NSDictionary dictionaryWithObjectsAndKeys:region.major, @"major", region.minor, @"minor", [region.proximityUUID.UUIDString lowercaseString], @"udid", 0, @"uid", nil];
     

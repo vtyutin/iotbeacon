@@ -44,8 +44,6 @@
 @synthesize uuid;
 
 BOOL isApplicationActive = NO;
-#define GET_VERSION_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/version.php"
-#define GET_BEACON_SERVICE_URL @"http://uliyneron.no-ip.org/ibeacon/ibeacon.php"
 
 #define TEST_ENTERING_ZONE 0
 BOOL isTestEntering = YES;
@@ -401,6 +399,9 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     
     NSDictionary *requestDict = [NSDictionary dictionaryWithObjectsAndKeys:region.major, @"major", region.minor, @"minor", [region.proximityUUID.UUIDString lowercaseString], @"udid", user.userId, @"uid", nil];
     
@@ -445,6 +446,9 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"application/json"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     
     NSDictionary *requestDict = [NSDictionary dictionaryWithObjectsAndKeys:region.major, @"major", region.minor, @"minor", [region.proximityUUID.UUIDString lowercaseString], @"udid", user.userId, @"uid", nil];
     
@@ -493,6 +497,9 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     [operationManager GET:GET_VERSION_SERVICE_URL
                parameters: nil
                   success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -523,6 +530,9 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
     operationManager.requestSerializer = [AFJSONRequestSerializer serializer];
     operationManager.responseSerializer = [AFJSONResponseSerializer serializer];
     operationManager.responseSerializer.acceptableContentTypes = [operationManager.responseSerializer.acceptableContentTypes setByAddingObject:@"text/html"];
+    NSString *login = LOGIN;
+    NSString *pass = PASSWORD;
+    [operationManager.requestSerializer setAuthorizationHeaderFieldWithUsername:login password:pass];
     [operationManager GET:pathToData
                parameters: nil
                   success:^(AFHTTPRequestOperation *operation, id responseObject) {

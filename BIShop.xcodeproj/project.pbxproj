@@ -47,7 +47,6 @@
 		D0565D401CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D2F1CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png */; };
 		D0565D411CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D301CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png */; };
 		D0565D421CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png in Resources */ = {isa = PBXBuildFile; fileRef = D0565D311CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png */; };
-		D07E30101C46A07E001EA160 /* RegistryController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E300F1C46A07E001EA160 /* RegistryController.m */; };
 		D07E30131C47C9BB001EA160 /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E30121C47C9BB001EA160 /* MainController.m */; };
 		D07E30191C47D1C4001EA160 /* UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E30181C47D1C4001EA160 /* UserData.m */; };
 		D07E301F1C4D1C0A001EA160 /* SettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E301E1C4D1C0A001EA160 /* SettingsController.m */; };
@@ -66,7 +65,6 @@
 		D0D7014A1CE276E800D946E5 /* UILocalNotification+S2MNotificationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D0D701471CE276E800D946E5 /* UILocalNotification+S2MNotificationHelper.m */; };
 		D0D7014C1CE27C9600D946E5 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0D7014B1CE27C9600D946E5 /* SystemConfiguration.framework */; };
 		D0D701501CE27E1000D946E5 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = D0D7014F1CE27E1000D946E5 /* Reachability.m */; };
-		D0F6F2641C73371800B2036E /* ZoneManagerConsumer.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F6F2631C73371800B2036E /* ZoneManagerConsumer.m */; };
 		D0F6F2741C73372F00B2036E /* libAPI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D0F6F2731C73372F00B2036E /* libAPI.a */; };
 /* End PBXBuildFile section */
 
@@ -132,8 +130,6 @@
 		D0565D2F1CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_Retina_iPad_Apps.png; sourceTree = "<group>"; };
 		D0565D301CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_Retina_iPad_settings.png; sourceTree = "<group>"; };
 		D0565D311CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = BIShop_Retina_iPad_Spotlight.png; sourceTree = "<group>"; };
-		D07E300E1C46A07E001EA160 /* RegistryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegistryController.h; sourceTree = "<group>"; };
-		D07E300F1C46A07E001EA160 /* RegistryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegistryController.m; sourceTree = "<group>"; };
 		D07E30111C47C9BB001EA160 /* MainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		D07E30121C47C9BB001EA160 /* MainController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		D07E30171C47D1C4001EA160 /* UserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserData.h; sourceTree = "<group>"; };
@@ -163,8 +159,6 @@
 		D0D7014B1CE27C9600D946E5 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D0D7014E1CE27E1000D946E5 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		D0D7014F1CE27E1000D946E5 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		D0F6F2621C73371800B2036E /* ZoneManagerConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZoneManagerConsumer.h; sourceTree = "<group>"; };
-		D0F6F2631C73371800B2036E /* ZoneManagerConsumer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZoneManagerConsumer.m; sourceTree = "<group>"; };
 		D0F6F2681C73372F00B2036E /* IBApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IBApi.h; sourceTree = "<group>"; };
 		D0F6F2691C73372F00B2036E /* IBBeacon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IBBeacon.h; sourceTree = "<group>"; };
 		D0F6F26A1C73372F00B2036E /* IBBeaconIdentity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IBBeaconIdentity.h; sourceTree = "<group>"; };
@@ -346,13 +340,9 @@
 				D0565D1F1CD09D93000CC3BB /* images */,
 				D024531D1CAAE6FE007B0A1D /* net */,
 				D0F6F2651C73372F00B2036E /* ibecom */,
-				D0F6F2621C73371800B2036E /* ZoneManagerConsumer.h */,
-				D0F6F2631C73371800B2036E /* ZoneManagerConsumer.m */,
 				D096170F1C32B2B20004C4F9 /* beacons.json */,
 				D09616DD1C2C1B340004C4F9 /* AppDelegate.h */,
 				D09616DE1C2C1B340004C4F9 /* AppDelegate.m */,
-				D07E300E1C46A07E001EA160 /* RegistryController.h */,
-				D07E300F1C46A07E001EA160 /* RegistryController.m */,
 				D07E30111C47C9BB001EA160 /* MainController.h */,
 				D07E30121C47C9BB001EA160 /* MainController.m */,
 				D09616E31C2C1B350004C4F9 /* Main.storyboard */,
@@ -600,7 +590,6 @@
 				D024534C1CABADB7007B0A1D /* AFHTTPRequestOperation.m in Sources */,
 				D0D701501CE27E1000D946E5 /* Reachability.m in Sources */,
 				D025E7B01C84726A002CE743 /* BeaconSettingsController.m in Sources */,
-				D07E30101C46A07E001EA160 /* RegistryController.m in Sources */,
 				D02453541CABADB7007B0A1D /* AFURLSessionManager.m in Sources */,
 				D02453551CABADB7007B0A1D /* AFNetworkActivityIndicatorManager.m in Sources */,
 				D07E30221C4D2C9A001EA160 /* DismissSegue.m in Sources */,
@@ -623,7 +612,6 @@
 				D09616DC1C2C1B340004C4F9 /* main.m in Sources */,
 				D024535C1CABADB7007B0A1D /* UIWebView+AFNetworking.m in Sources */,
 				D024534E1CABADB7007B0A1D /* AFHTTPSessionManager.m in Sources */,
-				D0F6F2641C73371800B2036E /* ZoneManagerConsumer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -740,7 +728,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iotbeacon/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -765,7 +753,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iotbeacon/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
