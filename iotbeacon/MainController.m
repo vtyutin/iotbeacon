@@ -9,7 +9,6 @@
 #import "MainController.h"
 #import "AppDelegate.h"
 #import <objc/runtime.h>
-#import "ZoneManagerConsumer.h"
 #import "SettingsController.h"
 #import "AFHTTPRequestOperationManager.h"
 #import "Reachability.h"
@@ -240,6 +239,7 @@
                           
                           [newBeaconsArray addObject:beacon];
                       }
+                      
                       [self storeData:newBeaconsArray forVersion:version];
                   }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {

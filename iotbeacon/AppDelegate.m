@@ -10,9 +10,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "UserData.h"
 #import "MainController.h"
-#import "RegistryController.h"
 #import <objc/runtime.h>
-#import "ZoneManagerConsumer.h"
 #import <CoreLocation/CLLocation.h>
 #import <CoreLocation/CLBeaconRegion.h>
 #import "AFHTTPRequestOperationManager.h"
@@ -670,7 +668,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler {
 }
 
 -(void)sendLocalNotificationWithMessage:(NSString*)message andUrl:(NSString*)url {
-    if ((url != nil) && (message != nil)) {
+    if ((url != nil) && (![url isEqual:[NSNull null]]) && (message != nil)) {
         [S2MNotificationHelper removeAllNotifications];
         [NSThread sleepForTimeInterval:1];
         NSString *keyForCache = [@([[NSDate date] timeIntervalSince1970]) stringValue];
@@ -682,13 +680,6 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler {
         notification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
         [notification setS2mKey:keyForCache];
         [S2MNotificationHelper showNotification:notification];
-        /*
-        UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-        localNotification.alertBody = message;
-        localNotification.soundName = UILocalNotificationDefaultSoundName;
-        localNotification.applicationIconBadgeNumber = 0;
-        [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-         */
     }
 }
 
