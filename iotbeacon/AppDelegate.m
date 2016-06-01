@@ -92,9 +92,9 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     
     self.manager = [[CLLocationManager alloc] init];
     [manager setPausesLocationUpdatesAutomatically:NO];
-    if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_4) {
-        manager.allowsBackgroundLocationUpdates = YES;
-    }
+    //if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_4) {
+    //    manager.allowsBackgroundLocationUpdates = YES;
+    //}
     [manager setDelegate:self];
     
     NSString* arrayPath;
@@ -200,6 +200,11 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
 - (void)locationManager:(CLLocationManager *)manager
         didRangeBeacons:(NSArray<CLBeacon *> *)bcns inRegion:(CLBeaconRegion *)region {
     NSLog(@"didRangeBeacons: %@", bcns);
+    if (bcns.count > 0) {
+        [self didEnterRegion:region];
+    } else {
+        [self didExitRegion:region];
+    }
 }
 
 - (void)locationManager:(CLLocationManager *)manager

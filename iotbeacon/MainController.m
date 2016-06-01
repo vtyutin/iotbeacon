@@ -26,6 +26,7 @@
 @synthesize alert;
 
 #define BUTTONS_VIEW_OFFSET 15
+#define ALLWAYS_LOAD_DATA 0
 
 - (void)viewDidLoad {
     [super viewDidLoad];        
@@ -190,7 +191,7 @@
                       NSString *pathToVersion = [responseObject valueForKey:@"data_file"];
                       
                       NSNumber *storedVersion = [[NSUserDefaults standardUserDefaults] objectForKey:@"data_version"];
-                      if ((storedVersion == nil) || ((storedVersion != nil) && ([storedVersion integerValue] != version))) {
+                      if ((storedVersion == nil) || ((storedVersion != nil) && ([storedVersion integerValue] != version)) || (ALLWAYS_LOAD_DATA == 1)) {
                           [self loadNewData:pathToVersion forVersion:version];
                       }
                   }

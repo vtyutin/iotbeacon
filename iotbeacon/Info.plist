@@ -23,7 +23,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>7</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -37,10 +37,7 @@
 	<string>This program requires foreground permission to scan beacons.</string>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>bluetooth-central</string>
-		<string>bluetooth-peripheral</string>
 		<string>fetch</string>
-		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
