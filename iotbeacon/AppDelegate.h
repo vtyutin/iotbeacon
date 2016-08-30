@@ -18,6 +18,7 @@
 @property (retain, nonatomic) NSUUID *uuid;
 
 - (void)reinitBeaconApi;
+- (void)storeData:(NSMutableArray*)updatedBeacons forVersion:(NSInteger)version withCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 @end
 

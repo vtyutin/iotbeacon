@@ -34,10 +34,30 @@
     [zoneButton setHidden:YES];
     self.alert = nil;
     [self checkConnection:nil];
+    
+    UISwipeGestureRecognizer* rightSwipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedForward:)];
+    rightSwipe.direction = UISwipeGestureRecognizerDirectionLeft;
+    [webView addGestureRecognizer:rightSwipe];
+    
+    UISwipeGestureRecognizer* leftSwipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedBack:)];
+    leftSwipe.direction = UISwipeGestureRecognizerDirectionRight;
+    [webView addGestureRecognizer:leftSwipe];
+}
+
+- (void)swipedBack:(UISwipeGestureRecognizer*)recognizer {
+    if ([webView canGoBack]) {
+        [webView goBack];
+    }
+}
+
+- (void)swipedForward:(UISwipeGestureRecognizer*)recognizer {
+    if ([webView canGoForward]) {
+        [webView goForward];
+    }
 }
 
 - (void)loadUrl:(NSString*)url {
-    if (url != nil) {
+    if ((url != nil) && (![url isEqual:[NSNull null]])) {
         NSURL *nsurl = [NSURL URLWithString:url];
         NSMutableURLRequest *requestObj = [NSMutableURLRequest requestWithURL:nsurl];
         [requestObj setTimeoutInterval:30];
@@ -241,6 +261,43 @@
                           [newBeaconsArray addObject:beacon];
                       }
                       
+                      /* Add Test beacons*/
+                      /*NSMutableDictionary *beacon = [NSMutableDictionary dictionary];
+                      [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
+                      [beacon setValue:[NSNumber numberWithInt:83] forKey:@"major"];
+                      [beacon setValue:[NSNumber numberWithInt:83] forKey:@"minor"];
+                      [beacon setValue:@"http://eda52.com/" forKey:@"url"];
+                      [beacon setValue:@"вход в маяк 83" forKey:@"message"];
+                      [beacon setValue:@"http://www.sputnik.ru/" forKey:@"leaving_url"];
+                      [beacon setValue:@"выход из маяка 83" forKey:@"leaving_message"];
+                      [beacon setValue:[NSNumber numberWithInt:83] forKey:@"id"];
+                      [newBeaconsArray addObject:beacon];
+                      
+                      beacon = [NSMutableDictionary dictionary];
+                      [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
+                      [beacon setValue:[NSNumber numberWithInt:84] forKey:@"major"];
+                      [beacon setValue:[NSNumber numberWithInt:84] forKey:@"minor"];
+                      [beacon setValue:@"http://google.com/" forKey:@"url"];
+                      [beacon setValue:@"вход в маяк 84" forKey:@"message"];
+                      [beacon setValue:@"http://yandex.ru/" forKey:@"leaving_url"];
+                      [beacon setValue:@"выход из маяка 84" forKey:@"leaving_message"];
+                      [beacon setValue:[NSNumber numberWithInt:84] forKey:@"id"];
+                      [newBeaconsArray addObject:beacon];
+                      
+                      beacon = [NSMutableDictionary dictionary];
+                      [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
+                      [beacon setValue:[NSNumber numberWithInt:85] forKey:@"major"];
+                      [beacon setValue:[NSNumber numberWithInt:85] forKey:@"minor"];
+                      [beacon setValue:@"http://yahoo.com/" forKey:@"url"];
+                      [beacon setValue:@"вход в маяк 85" forKey:@"message"];
+                      [beacon setValue:@"http://mail.ru/" forKey:@"leaving_url"];
+                      [beacon setValue:@"выход из маяка 85" forKey:@"leaving_message"];
+                      [beacon setValue:[NSNumber numberWithInt:85] forKey:@"id"];
+                      [newBeaconsArray addObject:beacon];
+                       */
+                      /* End */
+                      
+                      
                       [self storeData:newBeaconsArray forVersion:version];
                   }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -252,20 +309,7 @@
 
 - (void)storeData:(NSMutableArray*)updatedBeacons forVersion:(NSInteger)version {
     AppDelegate* app = ((AppDelegate*)[[UIApplication sharedApplication] delegate]);
-    
-    app.beacons = updatedBeacons;
-    
-    NSString* arrayPath;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    if ([paths count] > 0)
-    {
-        arrayPath = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"updated_settings.plist"];
-        [updatedBeacons writeToFile:arrayPath atomically:YES];
-    }
-    [((AppDelegate*)[[UIApplication sharedApplication] delegate]) reinitBeaconApi];
-    
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInteger:version] forKey:@"data_version"];
-    
+    [app storeData:updatedBeacons forVersion:version withCompletionHandler:nil];
     [messageView setHidden:YES];
 }
 

@@ -739,7 +739,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nn.smartcity;
 				PRODUCT_NAME = BIShop;
 				PROVISIONING_PROFILE = "31db533d-83f4-41a8-9e0d-501fb2e9ee4e";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Debug;
@@ -764,7 +764,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nn.smartcity;
 				PRODUCT_NAME = BIShop;
 				PROVISIONING_PROFILE = "31db533d-83f4-41a8-9e0d-501fb2e9ee4e";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Release;
