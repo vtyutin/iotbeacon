@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CLLocationManagerDelegate.h>
 #import <Google/CloudMessaging.h>
+#import "ActiveRegion.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, UIAlertViewDelegate, CLLocationManagerDelegate, GCMReceiverDelegate, GGLInstanceIDDelegate>
 
@@ -19,6 +20,7 @@
 
 - (void)reinitBeaconApi;
 - (void)storeData:(NSMutableArray*)updatedBeacons forVersion:(NSInteger)version withCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+-(void)didExitBeaconRegion:(ActiveRegion*)region;
 
 @end
 

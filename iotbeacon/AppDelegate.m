@@ -16,11 +16,15 @@
 #import "AFHTTPRequestOperationManager.h"
 #import <Google/CloudMessaging.h>
 #import "S2MNotificationHelper.h"
+#import "ActiveRegion.h"
 
 @interface AppDelegate ()<CBCentralManagerDelegate>
 @property (strong, nonatomic) CBCentralManager *bluetoothManager;
 @property (strong, nonatomic) CLLocationManager *manager;
 @property (strong, nonatomic) UserData *user;
+@property (strong, nonatomic) NSMutableArray *activeRegions;
+@property (strong, nonatomic) ActiveRegion *currentActiveRegion;
+@property (strong, nonatomic) NSTimer *sessionTimer;
 
 @property(nonatomic, strong) void (^registrationHandler)
 (NSString *registrationToken, NSError *error);
@@ -40,16 +44,21 @@
 @synthesize bluetoothManager;
 @synthesize user;
 @synthesize uuid;
+@synthesize activeRegions;
+@synthesize currentActiveRegion;
+@synthesize sessionTimer;
 
 BOOL isApplicationActive = NO;
 
 #define TEST_ENTERING_ZONE 0
 #define SHOW_DEFAULT_NOTIFICATIONS 0
+#define MINIMUM_BEACON_GATE_SIGNAL 75
 
 BOOL isTestEntering = YES;
 int testRegionIndex = 1;
 
 NSString *const SubscriptionTopicAll = @"/topics/all";
+NSString *const SubscriptionTopicMessage = @"/topics/message";
 NSString *const SubscriptionTopicDevice = @"/topics/%@";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -57,7 +66,7 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     localNotification.applicationIconBadgeNumber = 0;
     
     self.uuid = nil;
-    self.connectedToGCM = false;
+    _connectedToGCM = false;
 #if TARGET_IPHONE_SIMULATOR
     self.uuid = [[NSUUID alloc] initWithUUIDString:@"SIMULATOR"];
 #else
@@ -76,6 +85,7 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     self.bluetoothManager = [[CBCentralManager alloc] init];
     
     self.bluetoothManager.delegate = self;
+    self.sessionTimer = nil;
     
     UIUserNotificationType types = UIUserNotificationTypeBadge |
     UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
@@ -85,12 +95,13 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     
     [[UIApplication sharedApplication] registerUserNotificationSettings:mySettings];
     [[UIApplication sharedApplication] registerForRemoteNotifications];
-    
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     
+    
+    self.activeRegions = [NSMutableArray array];
     self.currentRegions = [NSMutableArray array];
+    self.currentActiveRegion = nil;
     
     self.manager = [[CLLocationManager alloc] init];
     [manager setPausesLocationUpdatesAutomatically:NO];
@@ -154,6 +165,7 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
             weakSelf.registrationToken = registrationToken;
             NSLog(@"Registration Token: %@", registrationToken);
             [weakSelf subscribeToTopic:SubscriptionTopicAll];
+            [weakSelf subscribeToTopic:SubscriptionTopicMessage];
             if (uuid != nil) {
                 [weakSelf subscribeToTopic:topic];
             }
@@ -188,9 +200,14 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
         CLBeaconRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:uid major:major minor:minor identifier:identifier];
         if (region != nil) {
             NSLog(@"start monitoring region: %@", region);
+            
+            if ([region.major integerValue] == 83) {
+                [self didEnterBeaconRegion:region];
+            }
+            
             [manager startMonitoringForRegion:region];
-            //[manager startRangingBeaconsInRegion:region];
             [manager requestStateForRegion:region];
+            [manager startRangingBeaconsInRegion:region];
         } else {
             NSLog(@"can't start monitoring region: %@", dict);
         }
@@ -203,11 +220,92 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
     [self reinitBeaconApi];
 }
 
+- (void)sessionTimerExpired {
+    [sessionTimer invalidate];
+    self.sessionTimer = nil;
+    
+    for (ActiveRegion *active in activeRegions) {
+        if ([active isUpdated] == NO) {
+            [self didExitBeaconRegion:active];
+        }
+    }
+}
+
 - (void)locationManager:(CLLocationManager *)manager
         didRangeBeacons:(NSArray<CLBeacon *> *)bcns inRegion:(CLBeaconRegion *)region {
     //NSLog(@"didRangeBeacons: %@", bcns);
     for (CLBeacon *beacon in bcns) {
         NSLog(@"### beacon %@-%@ prox: %ld accur: %f rssi: %ld", beacon.major, beacon.minor, beacon.proximity, beacon.accuracy, beacon.rssi);
+    }
+    
+    CLBeacon *beacon = [bcns firstObject];
+    if (beacon != nil) {
+        
+        if ((beacon.rssi != 0) && ((-beacon.rssi) < MINIMUM_BEACON_GATE_SIGNAL)) {
+            [self didEnterBeaconRegion:region];
+        }
+        
+        /*if (sessionTimer == nil) {
+            self.sessionTimer = [NSTimer scheduledTimerWithTimeInterval:15 target:self selector:@selector(sessionTimerExpired) userInfo:nil repeats:NO];
+            for (ActiveRegion *active in activeRegions) {
+                [active setIsUpdated:NO];
+            }
+        }*/
+        /*
+        BOOL isUpdated = NO;
+        for (ActiveRegion *active in activeRegions) {
+            if ([self isRegion:active.region identicalTo:region]) {
+                [active signalReceivedWithSsid:beacon.rssi andAccurancy:beacon.accuracy];
+                isUpdated = YES;
+                break;
+            }
+        }
+        if (isUpdated == NO) {
+            ActiveRegion *active = [[ActiveRegion alloc] init];
+            [active setBeacon:beacon];
+            [active setRegion:region];
+            [active signalReceivedWithSsid:beacon.rssi andAccurancy:beacon.accuracy];
+            [activeRegions addObject:active];
+            [currentRegions addObject:region];
+        }
+        
+        NSInteger maxSignal = 1000;
+        int index = 0;
+        int maxRegionIndex = -1;
+        NSString *debugInfo = @"";
+        for (ActiveRegion *active in activeRegions) {
+            NSLog(@"### Signal strenght for region %@ = %ld   isComplete: %d", active.region.major, [active latestSignal], [active isCompleteMeasurement]);
+            debugInfo = [NSString stringWithFormat:@"%@beacon %@-%@ rssi = %ld \n\r", debugInfo, active.region.major, active.region.minor, [active latestSignal]];
+            
+            if (([active latestSignal] > 0) && ([active latestSignal] <= MINIMUM_BEACON_GATE_SIGNAL) && ([active latestSignal] < maxSignal)) {
+                maxSignal = [active latestSignal];
+                maxRegionIndex = index;
+            }
+            index++;
+        }
+        
+        if (maxRegionIndex >= 0) {
+        NSLog(@"### Max region %@ = %ld", ((ActiveRegion*)[activeRegions objectAtIndex:maxRegionIndex]).region.major, maxSignal);
+        NSLog(@"### Current region %@ = %ld", currentActiveRegion.region.major, [currentActiveRegion latestSignal]);
+            ActiveRegion *maxRegion = [activeRegions objectAtIndex:maxRegionIndex];
+            
+            if ((currentActiveRegion == nil) || (currentActiveRegion.latestSignal == 0)) {
+                self.currentActiveRegion = maxRegion;
+                [self didEnterBeaconRegion:currentActiveRegion.region];
+            } else {
+                if ((maxRegion != nil) && ([self isRegion:maxRegion.region identicalTo:currentActiveRegion.region] == NO) && ([maxRegion latestSignal] <= [currentActiveRegion latestSignal])) {
+                    self.currentActiveRegion = maxRegion;
+                    [self didEnterBeaconRegion:currentActiveRegion.region];
+                }
+            }
+        }
+        if (currentActiveRegion != nil) {
+            debugInfo = [NSString stringWithFormat:@"%@ active beacon %@-%@\n\r", debugInfo, currentActiveRegion.region.major, currentActiveRegion.region.minor];
+        }
+        UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+        MainController *controller = (MainController*)[[mainController viewControllers] firstObject];
+        [controller updateBeaconInfoLabel:debugInfo];
+         */
     }
 }
 
@@ -218,52 +316,101 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    NSLog(@"did change region: %@ with state: %d", region, state);
+    //NSLog(@"did change region: %@ with state: %d", region, state);
     
     if (state == CLRegionStateInside) {
         [self didEnterRegion:region];
     } else if (state == CLRegionStateOutside) {
         [self didExitRegion:region];
     }
+    
 }
 
 - (void)didEnterRegion:(CLRegion *)region {
     NSLog(@"did enter region: %@", region);
-    if ([region isKindOfClass:CLBeaconRegion.class]) {
-        for (CLBeaconRegion *current in currentRegions) {
-            NSLog(@"current: %@, new: %@", current.identifier, region.identifier);
-            //if ([self isRegion:current identicalTo:(CLBeaconRegion*)region] == NO) {
-            //    [manager stopMonitoringForRegion:current];
-            //    [manager startMonitoringForRegion:current];
-            //}
-            if ([self isRegion:current identicalTo:(CLBeaconRegion*)region]) {
-                [currentRegions removeObject:current];
-                break;
-            }
-        }
-        [currentRegions addObject:region];
-        
-        NSLog(@"currentRegions: %@", currentRegions);
-        
-        [self sendNotificationEnteringRegion:(CLBeaconRegion*)region];
-    }
 }
 
 - (void)didExitRegion:(CLRegion *)region {
     NSLog(@"did exit region: %@", region);
     if ([region isKindOfClass:CLBeaconRegion.class]) {
-        if (([currentRegions count] == 1) && ([self isRegion:[currentRegions firstObject] identicalTo:(CLBeaconRegion*)region])) {
-            [self sendNotificationLeavingRegion:(CLBeaconRegion*)region];
-        }
-        for (CLBeaconRegion *current in currentRegions) {
-            if ([self isRegion:current identicalTo:(CLBeaconRegion*)region]) {
-                [currentRegions removeObject:current];
-                break;
+        BOOL isFound = NO;
+        if ([region isKindOfClass:CLBeaconRegion.class]) {
+            for (ActiveRegion *active in activeRegions) {
+                if ([self isRegion:(CLBeaconRegion*)region identicalTo:active.region]) {
+                    //[self didExitBeaconRegion:active];
+                    [self performSelector:@selector(didExitBeaconRegion:) withObject:active afterDelay:2];
+                    isFound = YES;
+                    break;
+                }
             }
         }
-        
-        NSLog(@"currentRegions: %@", currentRegions);
+        if (!isFound) {
+            ActiveRegion *active = [[ActiveRegion alloc] init];
+            [active setRegion:(CLBeaconRegion*)region];
+            [self performSelector:@selector(didExitBeaconRegion:) withObject:active afterDelay:2];
+            //[self didExitBeaconRegion:active];
+        }
     }
+}
+
+- (void)didEnterBeaconRegion:(CLRegion *)region {
+    NSLog(@"didEnterBeaconRegion: %@", region);
+    if ([region isKindOfClass:CLBeaconRegion.class]) {
+        if ([self isRegion:[currentRegions lastObject] identicalTo:region] == NO) {
+            for (CLBeaconRegion *current in currentRegions) {
+                NSLog(@"current: %@, new: %@", current.identifier, region.identifier);
+                //if ([self isRegion:current identicalTo:(CLBeaconRegion*)region] == NO) {
+                //    [manager stopMonitoringForRegion:current];
+                //    [manager startMonitoringForRegion:current];
+                //}
+                if ([self isRegion:current identicalTo:(CLBeaconRegion*)region]) {
+                    [currentRegions removeObject:current];
+                    break;
+                }
+            }
+            [currentRegions addObject:region];
+            
+            if ([self isRegion:(CLBeaconRegion*)region identicalTo:currentActiveRegion.region] == NO) {
+                for (ActiveRegion *active in activeRegions) {
+                    if ([self isRegion:(CLBeaconRegion*)region identicalTo:active.region]) {
+                        self.currentActiveRegion = active;
+                        break;
+                    }
+                }
+            }
+            
+            NSLog(@"currentRegions: %@", currentRegions);
+            
+            [self sendNotificationEnteringRegion:(CLBeaconRegion*)region];
+        }
+    }
+}
+
+-(void)didExitBeaconRegion:(ActiveRegion*)region {
+    
+     NSLog(@"didExitBeaconRegion: %@", region);
+
+     if (([currentRegions count] == 1) && ([self isRegion:[currentRegions firstObject] identicalTo:(CLBeaconRegion*)region.region])){
+         [self sendNotificationLeavingRegion:(CLBeaconRegion*)region.region];
+     }
+     for (CLBeaconRegion *current in currentRegions) {
+         if ([self isRegion:current identicalTo:(CLBeaconRegion*)region.region]) {
+             [currentRegions removeObject:current];
+             break;
+         }
+     }
+     
+     if ([self isRegion:(CLBeaconRegion*)region.region identicalTo:currentActiveRegion.region]) {
+         self.currentActiveRegion = nil;
+     }
+     for (ActiveRegion *active in activeRegions) {
+         if ([self isRegion:(CLBeaconRegion*)region.region identicalTo:active.region]) {
+             [activeRegions removeObject:active];
+             break;
+         }
+     }
+     
+     NSLog(@"currentRegions: %@", currentRegions);
 }
 
 - (BOOL)isRegion:(CLBeaconRegion*)regionOne identicalTo:(CLBeaconRegion*)regionTwo {
@@ -325,6 +472,7 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                 // [START_EXCLUDE]
                 NSString *const topic = [NSString stringWithFormat:@"/topics/%@", [uuid UUIDString]];
                 [self subscribeToTopic:SubscriptionTopicAll];
+                [self subscribeToTopic:SubscriptionTopicMessage];
                 if (uuid != nil) {
                     [self subscribeToTopic:topic];
                 }
@@ -449,6 +597,9 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                                    NSString *url = [data objectForKey:@"leaving_url"];
                                    if (((url != nil) && (![url isEqual:[NSNull null]])) && ((message != nil) && (![message isEqual:[NSNull null]]))) {
                                        [self sendLocalNotificationWithMessage:message andUrl:url];
+                                       UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+                                       MainController *controller = (MainController*)[[mainController viewControllers] firstObject];
+                                       [controller updateButtonState];
                                    } else {
                                        if (SHOW_DEFAULT_NOTIFICATIONS) {
                                            [self sendLocalNotificationWithMessage:[NSString stringWithFormat:@"выход маяка %@ - %@", region.major, region.minor] andUrl:@"google.com"];
@@ -504,6 +655,10 @@ rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region
                                    NSString *url = [data objectForKey:@"enter_url"];
                                    if (((url != nil) && (![url isEqual:[NSNull null]])) && ((message != nil) && (![message isEqual:[NSNull null]]))) {
                                        [self sendLocalNotificationWithMessage:message andUrl:url];
+                                       UINavigationController* mainController = (UINavigationController*)self.window.rootViewController;
+                                       MainController *controller = (MainController*)[[mainController viewControllers] firstObject];
+                                       [controller updateButtonState];
+                                       [controller showEnterAlertWithMessage:message andURL:url];
                                    } else {
                                        if (SHOW_DEFAULT_NOTIFICATIONS) {
                                            [self sendLocalNotificationWithMessage:[NSString stringWithFormat:@"вход маяка %@ - %@", region.major, region.minor] andUrl:@"yandex.ru"];
@@ -689,25 +844,25 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler {
 // [END ack_message_reception]
 
 -(void)handlePushNotificatio:(NSDictionary *)userInfo {
-    if ([[userInfo valueForKey:@"message"] compare:@"TEST_ENTER"] == NSOrderedSame) {
-        //[self didEnterRegion:[[[manager monitoredRegions] allObjects] firstObject]];
-    } else if ([[userInfo valueForKey:@"message"] compare:@"TEST_EXIT"] == NSOrderedSame) {
-        //[self didExitRegion:[[[manager monitoredRegions] allObjects] firstObject]];
-    } else if ([[userInfo valueForKey:@"message"] compare:@"TEST"] == NSOrderedSame) {
-        [self sendTestNotification];
-    } else {
-        NSString *message = [userInfo valueForKey:@"message"];
-        NSString *url = [userInfo valueForKey:@"url"];        
-        if ((url != nil) && (message != nil)) {
-            [self sendLocalNotificationWithMessage:message andUrl:url];
-        }
+    NSString *message = [userInfo valueForKey:@"message"];
+    NSString *url = [userInfo valueForKey:@"url"];        
+    if ((url != nil) && (message != nil)) {
+        [self sendLocalNotificationWithMessage:message andUrl:url];
     }
 }
 
 -(void)sendLocalNotificationWithMessage:(NSString*)message andUrl:(NSString*)url {
     if ((url != nil) && (![url isEqual:[NSNull null]]) && (message != nil)) {
+        
+        for (UILocalNotification *notification in [S2MNotificationHelper allNotifications]) {
+            if (([notification.alertBody compare:message] == NSOrderedSame) && ([[notification.userInfo valueForKey:@"url"] compare:url] == NSOrderedSame)) {
+                NSLog(@"Notification with message (%@) is already exists", notification.alertBody);
+                return;
+            }
+        }
+        
         [S2MNotificationHelper removeAllNotifications];
-        [NSThread sleepForTimeInterval:1];
+        //[NSThread sleepForTimeInterval:1];
         NSString *keyForCache = [@([[NSDate date] timeIntervalSince1970]) stringValue];
         UILocalNotification *notification = [UILocalNotification new];
         notification.alertAction = @"Let's Check";
@@ -716,6 +871,7 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))handler {
         notification.timeZone = [NSTimeZone defaultTimeZone];
         notification.userInfo = [NSDictionary dictionaryWithObject:url forKey:@"url"];
         [notification setS2mKey:keyForCache];
+        NSLog(@"show notification with message: %@ and url: %@", message, url);
         [S2MNotificationHelper showNotification:notification];
     }
 }

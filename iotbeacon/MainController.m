@@ -15,6 +15,8 @@
 
 @interface MainController ()
 @property (strong, nonatomic) UIAlertView *alert;
+@property (strong, nonatomic) NSString *currentRegionURL;
+@property (strong, nonatomic) UIAlertController *alertController;
 @end
 
 @implementation MainController
@@ -24,24 +26,84 @@
 @synthesize loadingIndicator;
 @synthesize buttonsView;
 @synthesize alert;
+@synthesize navigationButton;
+@synthesize currentRegionURL;
+@synthesize beaconInfoLabel;
+@synthesize alertController;
 
 #define BUTTONS_VIEW_OFFSET 15
 #define ALLWAYS_LOAD_DATA 0
+#define SHOW_DEBUG_DATA 0
+
+int buttonState;
 
 - (void)viewDidLoad {
-    [super viewDidLoad];        
+    [super viewDidLoad];
+    
+    for (id subview in webView.subviews) {
+        if ([[subview class] isSubclassOfClass: [UIScrollView class]]) {
+            ((UIScrollView *)subview).bounces = NO;
+            ((UIScrollView *)subview).delegate = self;
+        }
+        if ([subview respondsToSelector:@selector(setMultipleTouchEnabled:)]) {
+            [subview setMultipleTouchEnabled:NO];
+        }
+    }
+    webView.scalesPageToFit = NO;
+    webView.multipleTouchEnabled = NO;
+    
+    [loadingIndicator setColor:[UIColor lightGrayColor]];
+    
+    [beaconInfoLabel setText:@""];
+    [beaconInfoLabel setNumberOfLines:100];
+    [beaconInfoLabel setHidden:SHOW_DEBUG_DATA == 0 ? YES : NO];
     
     [zoneButton setHidden:YES];
     self.alert = nil;
+    self.alertController = nil;
     [self checkConnection:nil];
+    [navigationButton setHidden:YES];
+    buttonState = 0;
+    [buttonsView setHidden:YES];
     
     UISwipeGestureRecognizer* rightSwipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedForward:)];
     rightSwipe.direction = UISwipeGestureRecognizerDirectionLeft;
-    [webView addGestureRecognizer:rightSwipe];
+    //[webView addGestureRecognizer:rightSwipe];
     
     UISwipeGestureRecognizer* leftSwipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipedBack:)];
     leftSwipe.direction = UISwipeGestureRecognizerDirectionRight;
-    [webView addGestureRecognizer:leftSwipe];
+    //[webView addGestureRecognizer:leftSwipe];
+    
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(navigationButtonPressed:)];
+    [navigationButton addGestureRecognizer:tapRecognizer];
+    [navigationButton setUserInteractionEnabled:YES];
+}
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return nil;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+- (void)updateBeaconInfoLabel:(NSString*)text {
+    [self.beaconInfoLabel setText:text];
+}
+
+- (void)navigationButtonPressed:(UITapGestureRecognizer*)recognizer {
+    AppDelegate *app = ((AppDelegate*)[[UIApplication sharedApplication] delegate]);
+    switch ([navigationButton tag]) {
+        case 1:
+            if ([app.currentRegions count] > 0) {
+                [self showRegionUrl:(CLBeaconRegion*)[app.currentRegions lastObject]];
+            }
+            break;
+        case 2:
+            [self resetToHomePage];
+            break;
+    }
 }
 
 - (void)swipedBack:(UISwipeGestureRecognizer*)recognizer {
@@ -58,6 +120,7 @@
 
 - (void)loadUrl:(NSString*)url {
     if ((url != nil) && (![url isEqual:[NSNull null]])) {
+        self.currentRegionURL = url;
         NSURL *nsurl = [NSURL URLWithString:url];
         NSMutableURLRequest *requestObj = [NSMutableURLRequest requestWithURL:nsurl];
         [requestObj setTimeoutInterval:30];
@@ -178,7 +241,13 @@
     if (!wView.isLoading) {
         [loadingIndicator stopAnimating];
         [self hideButtons];
+        
+        [self updateButtonState];
     }
+    // Disable user selection
+    [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
+    // Disable callout
+    [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
@@ -261,43 +330,6 @@
                           [newBeaconsArray addObject:beacon];
                       }
                       
-                      /* Add Test beacons*/
-                      /*NSMutableDictionary *beacon = [NSMutableDictionary dictionary];
-                      [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
-                      [beacon setValue:[NSNumber numberWithInt:83] forKey:@"major"];
-                      [beacon setValue:[NSNumber numberWithInt:83] forKey:@"minor"];
-                      [beacon setValue:@"http://eda52.com/" forKey:@"url"];
-                      [beacon setValue:@"вход в маяк 83" forKey:@"message"];
-                      [beacon setValue:@"http://www.sputnik.ru/" forKey:@"leaving_url"];
-                      [beacon setValue:@"выход из маяка 83" forKey:@"leaving_message"];
-                      [beacon setValue:[NSNumber numberWithInt:83] forKey:@"id"];
-                      [newBeaconsArray addObject:beacon];
-                      
-                      beacon = [NSMutableDictionary dictionary];
-                      [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
-                      [beacon setValue:[NSNumber numberWithInt:84] forKey:@"major"];
-                      [beacon setValue:[NSNumber numberWithInt:84] forKey:@"minor"];
-                      [beacon setValue:@"http://google.com/" forKey:@"url"];
-                      [beacon setValue:@"вход в маяк 84" forKey:@"message"];
-                      [beacon setValue:@"http://yandex.ru/" forKey:@"leaving_url"];
-                      [beacon setValue:@"выход из маяка 84" forKey:@"leaving_message"];
-                      [beacon setValue:[NSNumber numberWithInt:84] forKey:@"id"];
-                      [newBeaconsArray addObject:beacon];
-                      
-                      beacon = [NSMutableDictionary dictionary];
-                      [beacon setValue:@"a07c5ca8-59eb-4ea8-9956-30b776e0fedc" forKey:@"udid"];
-                      [beacon setValue:[NSNumber numberWithInt:85] forKey:@"major"];
-                      [beacon setValue:[NSNumber numberWithInt:85] forKey:@"minor"];
-                      [beacon setValue:@"http://yahoo.com/" forKey:@"url"];
-                      [beacon setValue:@"вход в маяк 85" forKey:@"message"];
-                      [beacon setValue:@"http://mail.ru/" forKey:@"leaving_url"];
-                      [beacon setValue:@"выход из маяка 85" forKey:@"leaving_message"];
-                      [beacon setValue:[NSNumber numberWithInt:85] forKey:@"id"];
-                      [newBeaconsArray addObject:beacon];
-                       */
-                      /* End */
-                      
-                      
                       [self storeData:newBeaconsArray forVersion:version];
                   }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -335,19 +367,6 @@
     if (url != nil) {
         [self checkConnection:url];
     }
-}
-
-- (void)leavingZone:(id<IBZone>)zone {
-    [zoneButton setTitle:@"" forState:UIControlStateNormal];
-    objc_setAssociatedObject(zoneButton, @"url", nil, OBJC_ASSOCIATION_COPY);
-    [zoneButton setHidden:YES];
-}
-
-- (void)enteringZone:(id<IBZone>)zone {
-    [zoneButton setTitle:[NSString stringWithFormat:@"Текущая зона: %@", [[zone.identifier componentsSeparatedByString:@"#"] objectAtIndex:0]] forState:UIControlStateNormal];
-    objc_setAssociatedObject(zoneButton, @"url", [[zone.identifier componentsSeparatedByString:@"#"] objectAtIndex:1], OBJC_ASSOCIATION_COPY);
-    [zoneButton setHidden:NO];
-
 }
 
 - (void)leavingRegion:(CLBeaconRegion*)region {/*
@@ -431,6 +450,102 @@
                        
                    }
      ];
+}
+
+- (void)updateButtonState {
+    
+    if ([[[[webView request] URL] absoluteString] hasPrefix:@"http://uliyneron.no-ip.org/"]) {
+        AppDelegate *app = ((AppDelegate*)[[UIApplication sharedApplication] delegate]);
+        if ([app.currentRegions count] > 0) {
+            [self showButton:YES];
+        } else {
+            [navigationButton setHidden:YES];
+            buttonState = 0;
+        }
+    } else {
+        if ([self.currentRegionURL length] > 0) {
+            [self showButton:NO];
+        }
+    }
+}
+
+- (void)showButton:(BOOL)active {
+    if ((active == YES) && (buttonState == 2)) {
+        return;
+    }
+    if ((active == NO) && (buttonState == 1)) {
+        return;
+    }
+    
+    buttonState = active ? 2 : 1;
+    
+    NSMutableArray *images = [NSMutableArray array];
+    if (active) {
+        for (int index = 1; index <= 14; index++) {
+            [images addObject:[UIImage imageNamed:[NSString stringWithFormat:@"btnBIShop%d", index]]];
+        }
+    } else {
+        for (int index = 14; index >= 1; index--) {
+            [images addObject:[UIImage imageNamed:[NSString stringWithFormat:@"btnBIShop%d", index]]];
+        }
+    }
+    [navigationButton setAnimationImages:images];
+    [navigationButton setAnimationDuration:1];
+    [navigationButton setAnimationRepeatCount:1];
+    [navigationButton setImage:[UIImage imageNamed:active ? @"btnBIShop14" : @"btnBIShop1"]];
+    [navigationButton setTag:active ? 1 : 2];
+    [navigationButton setHidden:NO];
+    [navigationButton startAnimating];
+}
+
+- (void)showEnterAlertWithMessage:(NSString*) message andURL:(NSString*)url {
+    if (alertController != nil) {
+        [alertController dismissViewControllerAnimated:YES completion:^(void) {
+            self.alertController = nil;
+            [self showEnterAlertWithMessage:message andURL:url];
+        }];
+    }
+    
+    NSString *alertTitle = @"";
+    NSString *alertMessage = @"";
+    NSArray *components = [message componentsSeparatedByString:@":"];
+    if (components.count >= 2) {
+        alertTitle = components[0];
+        alertMessage = components[1];
+    } else {
+        alertMessage = message;
+    }
+    
+    self.alertController = [UIAlertController alertControllerWithTitle:alertTitle
+                                        message:alertMessage
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    NSMutableAttributedString *hogan = [[NSMutableAttributedString alloc] initWithString:@"Ok"];
+    [hogan addAttribute:NSFontAttributeName
+                  value:[UIFont systemFontOfSize:50.0]
+                  range:NSMakeRange(0, 2)];
+    
+    UIAlertAction* yesButton = [UIAlertAction actionWithTitle:@"Ок" style:UIAlertActionStyleDefault
+                                                      handler:^(UIAlertAction * action)
+                                {
+                                    [self loadUrl:url];
+                                    [alertController dismissViewControllerAnimated:YES completion:^(void) {
+                                        self.alertController = nil;
+                                        [self showEnterAlertWithMessage:message andURL:url];
+                                    }];
+                                }];
+    
+    UIAlertAction* noButton = [UIAlertAction actionWithTitle:@"Отмена" style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction * action)
+                               {
+                                   [alertController dismissViewControllerAnimated:YES completion:^(void) {
+                                       self.alertController = nil;
+                                       [self showEnterAlertWithMessage:message andURL:url];
+                                   }];
+                               }];
+    [alertController addAction:noButton];
+    [alertController addAction:yesButton];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 @end

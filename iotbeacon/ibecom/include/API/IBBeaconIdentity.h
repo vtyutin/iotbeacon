@@ -2,8 +2,7 @@
 //  IBBeaconIdentity.h
 //  IBApi
 //
-//  Created by Alexey Shcherbinin on 27.10.14.
-//  Copyright (c) 2014 iBecom. All rights reserved.
+//  Copyright © 2014-2016 iBecom. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

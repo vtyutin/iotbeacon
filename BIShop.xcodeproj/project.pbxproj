@@ -8,6 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		281A27238F2434BC816B2A02 /* libPods-iotbeacon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F262D0591D737ED7EBD5D26 /* libPods-iotbeacon.a */; };
+		D0116E8F1D75A39B00C091E8 /* ActiveRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = D0116E8E1D75A39B00C091E8 /* ActiveRegion.m */; };
+		D0196B771D76DE830093D60B /* btnBIShop1.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B691D76DE830093D60B /* btnBIShop1.png */; };
+		D0196B781D76DE830093D60B /* btnBIShop10.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B6A1D76DE830093D60B /* btnBIShop10.png */; };
+		D0196B791D76DE830093D60B /* btnBIShop11.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B6B1D76DE830093D60B /* btnBIShop11.png */; };
+		D0196B7A1D76DE830093D60B /* btnBIShop12.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B6C1D76DE830093D60B /* btnBIShop12.png */; };
+		D0196B7B1D76DE830093D60B /* btnBIShop13.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B6D1D76DE830093D60B /* btnBIShop13.png */; };
+		D0196B7C1D76DE830093D60B /* btnBIShop14.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B6E1D76DE830093D60B /* btnBIShop14.png */; };
+		D0196B7D1D76DE830093D60B /* btnBIShop2.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B6F1D76DE830093D60B /* btnBIShop2.png */; };
+		D0196B7E1D76DE830093D60B /* btnBIShop3.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B701D76DE830093D60B /* btnBIShop3.png */; };
+		D0196B7F1D76DE830093D60B /* btnBIShop4.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B711D76DE830093D60B /* btnBIShop4.png */; };
+		D0196B801D76DE830093D60B /* btnBIShop5.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B721D76DE830093D60B /* btnBIShop5.png */; };
+		D0196B811D76DE830093D60B /* btnBIShop6.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B731D76DE830093D60B /* btnBIShop6.png */; };
+		D0196B821D76DE830093D60B /* btnBIShop7.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B741D76DE830093D60B /* btnBIShop7.png */; };
+		D0196B831D76DE830093D60B /* btnBIShop8.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B751D76DE830093D60B /* btnBIShop8.png */; };
+		D0196B841D76DE830093D60B /* btnBIShop9.png in Resources */ = {isa = PBXBuildFile; fileRef = D0196B761D76DE830093D60B /* btnBIShop9.png */; };
 		D024534C1CABADB7007B0A1D /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D02453281CABADB7007B0A1D /* AFHTTPRequestOperation.m */; };
 		D024534D1CABADB7007B0A1D /* AFHTTPRequestOperationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D024532A1CABADB7007B0A1D /* AFHTTPRequestOperationManager.m */; };
 		D024534E1CABADB7007B0A1D /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D024532C1CABADB7007B0A1D /* AFHTTPSessionManager.m */; };
@@ -71,6 +86,22 @@
 /* Begin PBXFileReference section */
 		1F262D0591D737ED7EBD5D26 /* libPods-iotbeacon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-iotbeacon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8F5D92C8D120ADB2DF7BAE3 /* Pods-iotbeacon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iotbeacon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-iotbeacon/Pods-iotbeacon.debug.xcconfig"; sourceTree = "<group>"; };
+		D0116E8D1D75A39B00C091E8 /* ActiveRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveRegion.h; sourceTree = "<group>"; };
+		D0116E8E1D75A39B00C091E8 /* ActiveRegion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveRegion.m; sourceTree = "<group>"; };
+		D0196B691D76DE830093D60B /* btnBIShop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop1.png; sourceTree = "<group>"; };
+		D0196B6A1D76DE830093D60B /* btnBIShop10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop10.png; sourceTree = "<group>"; };
+		D0196B6B1D76DE830093D60B /* btnBIShop11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop11.png; sourceTree = "<group>"; };
+		D0196B6C1D76DE830093D60B /* btnBIShop12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop12.png; sourceTree = "<group>"; };
+		D0196B6D1D76DE830093D60B /* btnBIShop13.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop13.png; sourceTree = "<group>"; };
+		D0196B6E1D76DE830093D60B /* btnBIShop14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop14.png; sourceTree = "<group>"; };
+		D0196B6F1D76DE830093D60B /* btnBIShop2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop2.png; sourceTree = "<group>"; };
+		D0196B701D76DE830093D60B /* btnBIShop3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop3.png; sourceTree = "<group>"; };
+		D0196B711D76DE830093D60B /* btnBIShop4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop4.png; sourceTree = "<group>"; };
+		D0196B721D76DE830093D60B /* btnBIShop5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop5.png; sourceTree = "<group>"; };
+		D0196B731D76DE830093D60B /* btnBIShop6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop6.png; sourceTree = "<group>"; };
+		D0196B741D76DE830093D60B /* btnBIShop7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop7.png; sourceTree = "<group>"; };
+		D0196B751D76DE830093D60B /* btnBIShop8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop8.png; sourceTree = "<group>"; };
+		D0196B761D76DE830093D60B /* btnBIShop9.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btnBIShop9.png; sourceTree = "<group>"; };
 		D02453271CABADB7007B0A1D /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
 		D02453281CABADB7007B0A1D /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPRequestOperation.m; sourceTree = "<group>"; };
 		D02453291CABADB7007B0A1D /* AFHTTPRequestOperationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperationManager.h; sourceTree = "<group>"; };
@@ -207,6 +238,28 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		D0196B681D76DE830093D60B /* btnBIShop */ = {
+			isa = PBXGroup;
+			children = (
+				D0196B691D76DE830093D60B /* btnBIShop1.png */,
+				D0196B6A1D76DE830093D60B /* btnBIShop10.png */,
+				D0196B6B1D76DE830093D60B /* btnBIShop11.png */,
+				D0196B6C1D76DE830093D60B /* btnBIShop12.png */,
+				D0196B6D1D76DE830093D60B /* btnBIShop13.png */,
+				D0196B6E1D76DE830093D60B /* btnBIShop14.png */,
+				D0196B6F1D76DE830093D60B /* btnBIShop2.png */,
+				D0196B701D76DE830093D60B /* btnBIShop3.png */,
+				D0196B711D76DE830093D60B /* btnBIShop4.png */,
+				D0196B721D76DE830093D60B /* btnBIShop5.png */,
+				D0196B731D76DE830093D60B /* btnBIShop6.png */,
+				D0196B741D76DE830093D60B /* btnBIShop7.png */,
+				D0196B751D76DE830093D60B /* btnBIShop8.png */,
+				D0196B761D76DE830093D60B /* btnBIShop9.png */,
+			);
+			name = btnBIShop;
+			path = images/btnBIShop;
+			sourceTree = "<group>";
+		};
 		D024531D1CAAE6FE007B0A1D /* net */ = {
 			isa = PBXGroup;
 			children = (
@@ -278,6 +331,7 @@
 		D0565D1F1CD09D93000CC3BB /* images */ = {
 			isa = PBXGroup;
 			children = (
+				D0196B681D76DE830093D60B /* btnBIShop */,
 				D0D7013F1CE1CF8900D946E5 /* buttons.png */,
 				D03498141CDB6431008FAF04 /* beacon_icon.png */,
 				D03498101CDB3F0F008FAF04 /* beacon.png */,
@@ -359,6 +413,8 @@
 				D07E30231C4D317E001EA160 /* settings.plist */,
 				D025E7AE1C84726A002CE743 /* BeaconSettingsController.h */,
 				D025E7AF1C84726A002CE743 /* BeaconSettingsController.m */,
+				D0116E8D1D75A39B00C091E8 /* ActiveRegion.h */,
+				D0116E8E1D75A39B00C091E8 /* ActiveRegion.m */,
 			);
 			path = iotbeacon;
 			sourceTree = "<group>";
@@ -465,6 +521,7 @@
 					D09616D61C2C1B340004C4F9 = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = 2FBH9DEYTV;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -501,7 +558,9 @@
 			files = (
 				D09616EA1C2C1B350004C4F9 /* LaunchScreen.storyboard in Resources */,
 				D09616E71C2C1B350004C4F9 /* Assets.xcassets in Resources */,
+				D0196B831D76DE830093D60B /* btnBIShop8.png in Resources */,
 				D09616E51C2C1B350004C4F9 /* Main.storyboard in Resources */,
+				D0196B7A1D76DE830093D60B /* btnBIShop12.png in Resources */,
 				D09617101C32B2B20004C4F9 /* beacons.json in Resources */,
 				D0565D401CD09DB1000CC3BB /* BIShop_Retina_iPad_Apps.png in Resources */,
 				D0565D421CD09DB1000CC3BB /* BIShop_Retina_iPad_Spotlight.png in Resources */,
@@ -513,19 +572,31 @@
 				D0565D341CD09DB1000CC3BB /* BIShop_iPhone(4-6)_Apps.png in Resources */,
 				D07E30241C4D317E001EA160 /* settings.plist in Resources */,
 				D0565D391CD09DB1000CC3BB /* BIShop_iPhone6+_Spotlight.png in Resources */,
+				D0196B7B1D76DE830093D60B /* btnBIShop13.png in Resources */,
+				D0196B841D76DE830093D60B /* btnBIShop9.png in Resources */,
+				D0196B821D76DE830093D60B /* btnBIShop7.png in Resources */,
+				D0196B7D1D76DE830093D60B /* btnBIShop2.png in Resources */,
 				D0565D351CD09DB1000CC3BB /* BIShop_iPhone(4-6)_settings.png in Resources */,
 				D0565D1E1CCA3834000CC3BB /* GoogleService-Info.plist in Resources */,
 				D0565D3C1CD09DB1000CC3BB /* BIShop_old_iPad_Spotlight.png in Resources */,
 				D03498131CDB3F0F008FAF04 /* home.png in Resources */,
 				D0565D3D1CD09DB1000CC3BB /* BIShop_old_iPhone_Apps.png in Resources */,
+				D0196B7F1D76DE830093D60B /* btnBIShop4.png in Resources */,
+				D0196B771D76DE830093D60B /* btnBIShop1.png in Resources */,
 				D0565D411CD09DB1000CC3BB /* BIShop_Retina_iPad_settings.png in Resources */,
 				D0565D371CD09DB1000CC3BB /* BIShop_iPhone6+_Apps.png in Resources */,
+				D0196B801D76DE830093D60B /* btnBIShop5.png in Resources */,
 				D0565D331CD09DB1000CC3BB /* BIShop_icon_for_AppStore.png in Resources */,
+				D0196B811D76DE830093D60B /* btnBIShop6.png in Resources */,
+				D0196B791D76DE830093D60B /* btnBIShop11.png in Resources */,
 				D0565D3A1CD09DB1000CC3BB /* BIShop_old_iPad_Apps.png in Resources */,
 				D0D701401CE1CF8900D946E5 /* buttons.png in Resources */,
+				D0196B781D76DE830093D60B /* btnBIShop10.png in Resources */,
 				D03498121CDB3F0F008FAF04 /* beacon.png in Resources */,
 				D0565D3B1CD09DB1000CC3BB /* BIShop_old_iPad_settings.png in Resources */,
+				D0196B7E1D76DE830093D60B /* btnBIShop3.png in Resources */,
 				D0565D3E1CD09DB1000CC3BB /* BIShop_old_iPhone_settings.png in Resources */,
+				D0196B7C1D76DE830093D60B /* btnBIShop14.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -598,6 +669,7 @@
 				D024534D1CABADB7007B0A1D /* AFHTTPRequestOperationManager.m in Sources */,
 				D024534F1CABADB7007B0A1D /* AFNetworkReachabilityManager.m in Sources */,
 				D0D7014A1CE276E800D946E5 /* UILocalNotification+S2MNotificationHelper.m in Sources */,
+				D0116E8F1D75A39B00C091E8 /* ActiveRegion.m in Sources */,
 				D07E30191C47D1C4001EA160 /* UserData.m in Sources */,
 				D07E301F1C4D1C0A001EA160 /* SettingsController.m in Sources */,
 				D02453501CABADB7007B0A1D /* AFSecurityPolicy.m in Sources */,
@@ -725,10 +797,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iotbeacon/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -738,7 +811,8 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nn.smartcity;
 				PRODUCT_NAME = BIShop;
-				PROVISIONING_PROFILE = "31db533d-83f4-41a8-9e0d-501fb2e9ee4e";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
@@ -750,10 +824,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = iotbeacon/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -763,7 +838,8 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.nn.smartcity;
 				PRODUCT_NAME = BIShop;
-				PROVISIONING_PROFILE = "31db533d-83f4-41a8-9e0d-501fb2e9ee4e";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 			};
