@@ -200,11 +200,6 @@ NSString *const SubscriptionTopicDevice = @"/topics/%@";
         CLBeaconRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:uid major:major minor:minor identifier:identifier];
         if (region != nil) {
             NSLog(@"start monitoring region: %@", region);
-            
-            if ([region.major integerValue] == 83) {
-                [self didEnterBeaconRegion:region];
-            }
-            
             [manager startMonitoringForRegion:region];
             [manager requestStateForRegion:region];
             [manager startRangingBeaconsInRegion:region];
